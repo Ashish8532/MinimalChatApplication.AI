@@ -1,0 +1,100 @@
+<div class="container">
+    <div class="row d-flex justify-content-center align-items-center">
+        <div class="col-lg-12 col-xl-11">
+            <div class="card text-black">
+                <div class="card-body p-5">
+                    <div class="row justify-content-center">
+                        <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+
+                            <p class="text-center h1 fw-bold mb-3 mx-1 mx-md-4 mt-1">Sign Up</p>
+
+                            <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+
+                                <div class="form-group pt-3">
+                                    <div class="input-field"
+                                        [class.error]="registerForm.controls['name'].dirty && registerForm.hasError('required', 'name')">
+                                        <span class="fa fa-user p-2"></span>
+                                        <input formControlName="name" type="text" placeholder="First Name">
+                                    </div>
+                                    <div>
+                                        <small
+                                            *ngIf="registerForm.controls['name'].dirty && registerForm.hasError('required', 'name')">
+                                            First name is required field.
+                                        </small>
+                                        <small
+                                            *ngIf="registerForm.controls['name'].dirty && registerForm.get('name')?.hasError('pattern')">
+                                            First name can only contain letters (A-Z, a-z) and spaces.
+                                        </small>
+                                        <small
+                                            *ngIf="registerForm.controls['name'].dirty && registerForm.hasError('minlength', 'name')">
+                                            Full name must be at least 3 characters long.
+                                        </small>
+                                        <small
+                                            *ngIf="registerForm.controls['name'].dirty && registerForm.hasError('maxlength', 'name')">
+                                            Full name cannot exceed 20 characters.
+                                        </small>
+                                        <small *ngIf="registerForm.hasError('consecutiveSpaces', 'name')">
+                                            Full name cannot contain consecutive spaces.
+                                        </small>
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group pt-3">
+                                    <div class="input-field"
+                                        [class.error]="registerForm.controls['email'].dirty && registerForm.hasError('required', 'email')">
+                                        <span class="fa fa-envelope p-2"></span>
+                                        <input formControlName="email" type="text" placeholder="Email">
+                                    </div>
+                                    <div>
+                                        <small
+                                            *ngIf="registerForm.controls['email'].dirty && registerForm.hasError('required', 'email')">
+                                            Email is a required field.
+                                        </small>
+                                        <small *ngIf="registerForm.hasError('email', 'email')">
+                                            Enter a valid email address.
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="form-group pt-3">
+                                    <div class="input-field"
+                                        [class.error]="registerForm.controls['password'].dirty && registerForm.hasError('required', 'password')">
+                                        <span class="fa fa-lock p-2"></span>
+                                        <input formControlName="password" [type]="type" placeholder="Password">
+                                        <span (click)="hideShowPass()" class="fa {{ eyeIcon }}"></span>
+                                    </div>
+                                    <div>
+                                        <small
+                                            *ngIf="registerForm.controls['password'].dirty && registerForm.hasError('required', 'password')">
+                                            Password is required.
+                                        </small>
+                                        <small *ngIf="registerForm.get('password')?.errors?.['noSpaceAllowed']">
+                                            Password can not contain a space.
+                                        </small>
+                                        <small
+                                            *ngIf="registerForm.get('password')?.hasError('invalidPassword') && !registerForm.get('password')?.hasError('required')">
+                                            Password must contain at least one lowercase, one uppercase, one special
+                                            character, and one numeric digit.
+                                        </small>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block mt-4 w-100">Signup</button>
+                                <div class="text-center pt-4 text-muted">
+                                    Already have account?
+                                    <a id="login" routerLink="/login">Login</a>
+                                </div>
+                            </form>
+
+                        </div>
+                        <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+
+                            <img src="../../../assets/images/signup.png" class="img-fluid" alt="Sample image">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
