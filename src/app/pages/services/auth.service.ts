@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -6,19 +6,30 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  private isLoggedIn = false;
 
   private baseUrl: string = "https://localhost:44394/api";
   constructor(private http: HttpClient) { }
 
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  // Add JWT token to headers
+  private getHeaders(): HttpHeaders {
+    const token = this.getToken();
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
   register(userObj: any): Observable<any> {
-    debugger
-    this.isLoggedIn = false;
-    sessionStorage.setItem('isLoggedIn', 'false');
     return this.http.post<any>(`${this.baseUrl}/register`, userObj);
   }
- 
-  isAuthenticated(): boolean {
-    return this.isLoggedIn || sessionStorage.getItem('isLoggedIn') === 'true';
+
+  login(loginData: any): Observable<any> {
+    const headers = this.getHeaders();
+    const url = `${this.baseUrl}/login`;
+    return this.http.post<any>(url, loginData, { headers });
   }
 }
