@@ -1,24 +1,23 @@
 import { Component } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgToastService } from 'ng-angular-popup';
-import NoConsecutiveSpaces from 'src/app/shared/helpers/no-consecutive-spaces';
 import NoSpaceAllowed from 'src/app/shared/helpers/nospace-allowed';
-import ValidatePassword from 'src/app/shared/helpers/validate-password';
 import ValidateForm from 'src/app/shared/helpers/validate-forms';
+import ValidatePassword from 'src/app/shared/helpers/validate-password';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-register',
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
 })
-export class RegisterComponent {
+export class LoginComponent {
   type: string = "password";
   isText: boolean = false;
-  eyeIcon: string = "fa-eye-slash"
+  eyeIcon: string = "fa-eye-slash";
 
-  registerForm!: FormGroup;
+  loginForm!: FormGroup;
 
   constructor(private formBuilder: FormBuilder, 
     private authService: AuthService, 
@@ -26,11 +25,9 @@ export class RegisterComponent {
     private toast: NgToastService) { }
 
   ngOnInit(): void {
-    this.registerForm = this.formBuilder.group({
-      name: [null, [Validators.required, Validators.pattern('^[A-Za-z ]+$'),
-      Validators.minLength(2), Validators.maxLength(20), NoConsecutiveSpaces.noConsecutiveSpaces]],
+    this.loginForm = this.formBuilder.group({
       email: [null, [Validators.required, Validators.email]],
-      password: [null, [Validators.required, NoSpaceAllowed.noSpaceAllowed, ValidatePassword.validatePassword]],
+      password: [null, [Validators.required, NoSpaceAllowed.noSpaceAllowed, ValidatePassword.validatePassword]]
     });
   }
 
@@ -40,14 +37,13 @@ export class RegisterComponent {
     this.isText ? this.type = "text" : this.type = "password";
   }
 
-  onRegister() {
-    console.log(this.registerForm);
-    if(this.registerForm.valid) {
-      this.authService.register(this.registerForm.value).subscribe({
+  onLogin() {
+    if(this.loginForm.valid) {
+      this.authService.login(this.loginForm.value).subscribe({
         next: (res) => {
-          this.registerForm.reset();
+          this.loginForm.reset();
           this.toast.success({detail:"SUCCESS", summary:res.message, duration:3000});
-          this.router.navigate(['login']);
+          this.router.navigate(['']);
         },
         error: (err) => {
           this.toast.error({detail:"ERROR", summary:err.error.message, duration:3000});
@@ -55,7 +51,7 @@ export class RegisterComponent {
       })
     }
     else {
-      ValidateForm.validateAllFormFields(this.registerForm);
+      ValidateForm.validateAllFormFields(this.loginForm);
       this.toast.error({detail:"ERROR", summary:"Form is not valid.", duration:3000});
     }
   }

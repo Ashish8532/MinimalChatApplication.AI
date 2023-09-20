@@ -13,11 +13,9 @@ export class AppComponent {
   title = 'MinimalChatApplication.AI';
 
   constructor(private formBuilder: FormBuilder, 
-    private authService: AuthService, 
     private router: Router,
-    private toast: NgToastService) { }
-    
-  isLoggedIn(): boolean {
-    return this.authService.isAuthenticated();
-  }
+    private toast: NgToastService,
+   ) { }
+
+  
 }

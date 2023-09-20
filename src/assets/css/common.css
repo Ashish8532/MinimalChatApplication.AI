@@ -11,10 +11,10 @@
     text-decoration: none;
     cursor: pointer;
 }
-
-a:hover {
+a {
     text-decoration: none;
 }
+
 
 .form-inline label {
     padding-left: 10px;

@@ -7,11 +7,13 @@ import { RegisterComponent } from './pages/components/register/register.componen
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgToastModule } from 'ng-angular-popup';
 import { HttpClientModule } from '@angular/common/http';
+import { LoginComponent } from './pages/components/login/login.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     RegisterComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
