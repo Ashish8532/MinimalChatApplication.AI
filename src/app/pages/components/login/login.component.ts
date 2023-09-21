@@ -39,14 +39,16 @@ export class LoginComponent {
 
   onLogin() {
     if(this.loginForm.valid) {
-      this.authService.login(this.loginForm.value).subscribe({
+      this.authService.login(this.loginForm.value).subscribe(
+        {
         next: (res) => {
           this.loginForm.reset();
+          this.authService.storeToken(res.jwtToken);
           this.toast.success({detail:"SUCCESS", summary:res.message, duration:3000});
-          this.router.navigate(['']);
+          this.router.navigate(['user-list']);
         },
         error: (err) => {
-          this.toast.error({detail:"ERROR", summary:err.error.message, duration:3000});
+          this.toast.error({detail:"ERROR", summary:"Something went wrong.", duration:3000});
         }
       })
     }

@@ -6,14 +6,19 @@ import { AppComponent } from './app.component';
 import { RegisterComponent } from './pages/components/register/register.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgToastModule } from 'ng-angular-popup';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './pages/components/login/login.component';
+import { HeaderComponent } from './shared/components/header/header.component';
+import { UserListComponent } from './pages/components/user-list/user-list.component';
+import { TokenInterceptor } from './pages/interceeptors/token.interceptor';
 
 @NgModule({
   declarations: [
     AppComponent,
     RegisterComponent,
     LoginComponent,
+    HeaderComponent,
+    UserListComponent,
   ],
   imports: [
     BrowserModule,
@@ -21,9 +26,14 @@ import { LoginComponent } from './pages/components/login/login.component';
     ReactiveFormsModule,
     FormsModule,
     NgToastModule,
-    HttpClientModule
+    HttpClientModule,
   ],
-  providers: [],
+  providers: [{ 
+    provide: HTTP_INTERCEPTORS,
+    useClass: TokenInterceptor, 
+    multi: true 
+  }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
