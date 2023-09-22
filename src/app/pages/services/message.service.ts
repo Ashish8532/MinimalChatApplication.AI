@@ -46,12 +46,24 @@ export class MessageService {
   }
 
   sendMessage(message: { receiverId: string, content: string }): Observable<any> {
-    debugger
     const headers = this.getHeaders();
     return this.http.post(this.apiUrl, message, { headers }).pipe(
       catchError((error: HttpErrorResponse) => {
         return throwError(() => new Error(error.message));
       })
     );
+  }
+  // Update an existing message
+  updateMessage(messageId: number, newContent: string): Observable<any> {
+    debugger
+    // Prepare the updated message data
+    const updatedMessage = {
+      content: newContent
+    };
+
+    const headers = this.getHeaders();
+    // Send a PUT request to update the message content
+    const url = `${this.apiUrl}/${messageId}`;
+    return this.http.put(url, updatedMessage, { headers });
   }
 }
