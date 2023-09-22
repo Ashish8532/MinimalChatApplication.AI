@@ -15,6 +15,8 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   isLoadingMoreMessages = false;
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
 
+  newMessageContent: string = '';
+
   constructor(private messageService: MessageService, private toast: NgToastService) {}
 
   ngOnInit() {
@@ -76,5 +78,37 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     const nameParts = name.split(' ');
     const initials = nameParts.map(part => part.charAt(0).toUpperCase()).join('');
     return initials;
+  }
+
+
+  sendMessage() {
+    if (this.newMessageContent.trim() === '') {
+      // Handle empty message content, show an error message, or disable the send button
+      return;
+    }
+    // Create a message object with the receiver's ID and content
+    const message = {
+      receiverId: this.userId,
+      content: this.newMessageContent
+    };
+
+    // Call the message service to send the message
+    this.messageService.sendMessage(message).subscribe(
+      (response) => {
+        // Message sent successfully, add it to the conversation history
+        this.conversationHistory.push({
+          receiverId: this.userId, // Assuming the sender is the current user
+          content: this.newMessageContent,
+          timestamp: new Date().toISOString() // You can update the timestamp based on your requirements
+        });
+        // Clear the input box after sending the message
+        this.newMessageContent = '';
+        this.scrollToBottom();
+      },
+      (error) => {
+        // Handle error when the message fails to send
+        console.error('Error sending message:', error);
+      }
+    );
   }
 }
