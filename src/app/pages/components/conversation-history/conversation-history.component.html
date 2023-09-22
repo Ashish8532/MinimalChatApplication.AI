@@ -10,37 +10,63 @@
     </div>
   </div>
   <div class="p-2 rounded">
-    
-    <div class="scroll-container pt-3 pe-3" data-mdb-perfect-scrollbar="true" style="position: relative; height: 330px" 
-    (scroll)="onScroll()" #scrollContainer>
+
+    <div class="scroll-container pt-3 pe-3" data-mdb-perfect-scrollbar="true" style="position: relative; height: 330px"
+      (scroll)="onScroll()" #scrollContainer>
       <ng-container *ngFor="let message of conversationHistory">
-        <div class="d-flex flex-row justify-content-start" *ngIf="message.senderId === userId">
-          <img src="https://mdbcdn.b-cdn.net/img/new/avatars/8.webp"
-            alt="avatar" class="rounded-circle mb-3" style="width: 45px; height: 100%;">
-          <div>
-            <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: rgba(57, 192, 237,.2);">{{ message.content }}</p>
-            <p class="small ms-3 mb-3 rounded-3 text-muted float-end">{{ message.timestamp | date }}</p>
+        <div [class.editing]="isEditing && message === selectedMessage"
+          (contextmenu)="showContextMenu($event, message)">
+          <!-- Display the sender's message -->
+          <div class="d-flex flex-row justify-content-start" *ngIf="message.senderId === userId">
+            <img src="https://mdbcdn.b-cdn.net/img/new/avatars/8.webp" alt="avatar" class="rounded-circle mb-3"
+              style="width: 45px; height: 100%;">
+            <div>
+              <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: rgba(57, 192, 237,.2);">{{
+                message.content }}</p>
+              <p class="small ms-3 mb-3 rounded-3 text-muted float-end">{{ message.timestamp | date }}</p>
+            </div>
+          </div>
+
+          <!-- Display the recipient's message -->
+          <div class="d-flex flex-row justify-content-end" *ngIf="message.senderId !== userId">
+            <div>
+              <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary">{{ isEditing && message === selectedMessage
+                ? '' : message.content }}</p>
+              <p class="small me-3 mb-3 rounded-3 text-muted float-end">{{ message.timestamp | date }}</p>
+            </div>
+            <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp" alt="avatar" class="rounded-circle"
+              style="width: 45px; height: 100%;">
           </div>
         </div>
-    
-        <div class="d-flex flex-row justify-content-end" *ngIf="message.senderId !== userId">
-          <div>
-            <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary">{{ message.content }}</p>
-            <p class="small me-3 mb-3 rounded-3 text-muted float-end">{{ message.timestamp | date }}</p>
+
+        <!-- Inline editor for editing messages -->
+        <div *ngIf="isEditing && message === selectedMessage" class="message-editor">
+          <!-- Inline editor for editing messages -->
+          <input type="text" [(ngModel)]="selectedMessage.content" style="box-shadow: none; border: none;"
+            class="form-control form-control-lg border-bottom bg-light">
+          <div class="editor-buttons">
+            <button class="btn btn-primary" (click)="acceptEdit(message)">Edit</button>
+            <button class="btn btn-danger">Delete</button>
+            <button class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
           </div>
-          <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"
-            alt="avatar" class="rounded-circle" style="width: 45px; height: 100%;">
         </div>
+
       </ng-container>
     </div>
-    
+    <ng-template #contextMenuTemplate>
+      <ul class="context-menu">
+        <li (click)="editMessage(selectedMessage)">Edit</li>
+        <!-- <li (click)="deleteMessage(selectedMessage)">Delete</li> -->
+      </ul>
+    </ng-template>
     <div class="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
-      <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"
-        alt="avatar" class="rounded-circle me-sm-2" style="width: 40px; height: 100%;">
+      <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp" alt="avatar" class="rounded-circle me-sm-2"
+        style="width: 40px; height: 100%;">
       <input type="text" [(ngModel)]="newMessageContent" class="form-control form-control-lg border-bottom bg-light"
         placeholder="Type message" style="box-shadow: none; border: none;">
       <a class="ms-3" (click)="sendMessage()"><i class="fa fa-paper-plane"></i></a>
     </div>
-    
+
   </div>
+  
 </div>

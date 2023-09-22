@@ -17,6 +17,12 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
 
   newMessageContent: string = '';
 
+
+  selectedMessage: any; // Property to store the selected message
+isContextMenuVisible = false;
+isEditing: boolean = false;
+editedMessageContent: string = '';
+
   constructor(private messageService: MessageService, private toast: NgToastService) {}
 
   ngOnInit() {
@@ -111,4 +117,68 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       }
     );
   }
+
+  // Function to show the context menu
+showContextMenu(event: MouseEvent, message: any) {
+  event.preventDefault(); // Prevent the default context menu from appearing
+  this.selectedMessage = message; // Store the selected message
+  this.isContextMenuVisible = true; // Display the context menu
+  this.isEditing = true;
+  this.positionContextMenu(event.clientX, event.clientY); // Position the menu near the cursor
+}
+
+  // Function to hide the context menu
+hideContextMenu() {
+  this.selectedMessage = null; // Clear the selected message
+  this.isContextMenuVisible = false; // Hide the context menu
+}
+
+// Function to position the context menu
+positionContextMenu(x: number, y: number) {
+  // Position the context menu at the specified coordinates (x, y)
+  // You can use CSS styles or JavaScript to set the menu's position
+  // For example:
+  const contextMenu = document.querySelector('.context-menu') as HTMLElement;
+  contextMenu.style.left = x + 'px';
+  contextMenu.style.top = y + 'px';
+}
+  // Function to edit a message
+editMessage(message: any) {
+  // Initialize the editedMessageContent with the original message content
+  this.selectedMessage = message.content;
+
+  // Display the inline editor and hide the context menu
+  this.isContextMenuVisible = false;
+}
+// Function to accept the edited message
+acceptEdit(message: any) {
+  debugger
+  
+  // Make an API request to update the message content on the server
+  this.messageService.updateMessage(message.messageId, message.content).subscribe(
+    (updatedMessage: any) => {
+      // Update the message locally with the updated content
+      message.content = updatedMessage.content;
+     this.conversationHistory.content = message.content;
+
+      // Exit edit mode
+      this.isContextMenuVisible = false;
+      this.isEditing = false;
+      this.fetchConversationHistory(this.userId);
+    },
+    (error: any) => {
+      // Handle any errors that occurred during the update
+      console.error('Error updating message:', error);
+      // You can display an error message to the user if needed
+    }
+  );
+}
+
+// Function to cancel the edit and discard changes
+cancelEdit() {
+  // Simply exit edit mode by hiding the inline editor
+  this.isContextMenuVisible = false;
+  this.isEditing = false;
+}
+
 }
