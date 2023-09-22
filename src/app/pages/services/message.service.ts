@@ -1,6 +1,6 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -43,5 +43,15 @@ export class MessageService {
 
     // Make the API request
     return this.http.get(`${this.apiUrl}`, { params, headers });
+  }
+
+  sendMessage(message: { receiverId: string, content: string }): Observable<any> {
+    debugger
+    const headers = this.getHeaders();
+    return this.http.post(this.apiUrl, message, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        return throwError(() => new Error(error.message));
+      })
+    );
   }
 }
