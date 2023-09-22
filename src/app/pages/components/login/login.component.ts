@@ -45,7 +45,7 @@ export class LoginComponent {
           this.loginForm.reset();
           this.authService.storeToken(res.jwtToken);
           this.toast.success({detail:"SUCCESS", summary:res.message, duration:3000});
-          this.router.navigate(['user-list']);
+          this.router.navigate(['chat']);
         },
         error: (err) => {
           this.toast.error({detail:"ERROR", summary:"Something went wrong.", duration:3000});
