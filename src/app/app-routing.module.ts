@@ -2,12 +2,18 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RegisterComponent } from './pages/components/register/register.component';
 import { LoginComponent } from './pages/components/login/login.component';
-import { UserListComponent } from './pages/components/user-list/user-list.component';
+import { ConversationHistoryComponent } from './pages/components/conversation-history/conversation-history.component';
+import { ChatComponent } from './pages/components/chat/chat.component';
+import { authGuard } from './pages/guard/auth.guard';
 
 const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'user-list', component: UserListComponent }
+  {
+    path: 'chat', component: ChatComponent, children: [
+      { path: 'user/:userId', component: ConversationHistoryComponent }, // Add route with user parameter
+    ], canActivate: [authGuard]
+  },
 ];
 
 @NgModule({

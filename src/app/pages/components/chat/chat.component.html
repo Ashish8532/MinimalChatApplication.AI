@@ -1,0 +1,36 @@
+<section style="background-color: #CDC4F9; min-height: 100vh;">
+    <div class="container">
+  
+      <div class="row">
+        <div class="col-md-12">
+  
+          <div class="card" id="chat3" style="border-radius: 15px;">
+            <div class="card-body">
+  
+              <div class="row">
+                <div class="col-md-6 col-lg-5 col-xl-4 mb-4 mb-md-0">
+  
+                  <div class="p-3">
+                  <!-- For User List -->
+                  
+                  <app-user-list (userSelected)="onUserSelected($event)"></app-user-list>
+                  </div>
+  
+                </div>
+  
+                <div class="col-md-6 col-lg-7 col-xl-8">
+  
+                  <!-- For Conversation History -->
+                  <app-conversation-history [userId]="selectedUserId" [userName]="selectedUserName" *ngIf="selectedUserId"></app-conversation-history>
+  
+                </div>
+              </div>
+  
+            </div>
+          </div>
+  
+        </div>
+      </div>
+  
+    </div>
+  </section>

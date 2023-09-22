@@ -1,0 +1,46 @@
+<div class="bg-light rounded">
+  <div class="user-header">
+    <div class="user-avatar fw-bold">
+      {{ getInitials(userName) }}
+      <span class="badge bg-success badge-dot"></span>
+    </div>
+    <div class="user-info">
+      <p class="fw-bold mb-0">{{ userName }}</p>
+      <!-- Include other user information as needed -->
+    </div>
+  </div>
+  <div class="p-2 rounded">
+    
+    <div class="scroll-container pt-3 pe-3" data-mdb-perfect-scrollbar="true" style="position: relative; height: 330px" 
+    (scroll)="onScroll()" #scrollContainer>
+      <ng-container *ngFor="let message of conversationHistory">
+        <div class="d-flex flex-row justify-content-start" *ngIf="message.senderId === userId">
+          <img src="https://mdbcdn.b-cdn.net/img/new/avatars/8.webp"
+            alt="avatar" class="rounded-circle mb-3" style="width: 45px; height: 100%;">
+          <div>
+            <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: rgba(57, 192, 237,.2);">{{ message.content }}</p>
+            <p class="small ms-3 mb-3 rounded-3 text-muted float-end">{{ message.timestamp | date }}</p>
+          </div>
+        </div>
+    
+        <div class="d-flex flex-row justify-content-end" *ngIf="message.senderId !== userId">
+          <div>
+            <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary">{{ message.content }}</p>
+            <p class="small me-3 mb-3 rounded-3 text-muted float-end">{{ message.timestamp | date }}</p>
+          </div>
+          <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"
+            alt="avatar" class="rounded-circle" style="width: 45px; height: 100%;">
+        </div>
+      </ng-container>
+    </div>
+    
+    <div class="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
+      <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"
+        alt="avatar" class="rounded-circle me-sm-2" style="width: 40px; height: 100%;">
+      <input type="text" class="form-control form-control-lg border-bottom" id="exampleFormControlInput2"
+        placeholder="Type message">
+      <a class="ms-3" href="#!"><i class="fa fa-paper-plane"></i></a>
+    </div>
+    
+  </div>
+</div>

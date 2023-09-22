@@ -1,16 +1,18 @@
 .card {
-    margin-top: 70px;
+    margin-top: 80px;
     margin-left: 20px;
     border: none;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     border-radius: 25px;
 }
+
 #login {
     min-width: 100px;
     margin-left: auto;
     text-decoration: none;
     cursor: pointer;
 }
+
 a {
     text-decoration: none;
 }
@@ -56,13 +58,13 @@ input:-webkit-autofill {
     color: red;
 }
 
-input[type='text'], 
+input[type='text'],
 input[type='password'] {
     border: none;
     outline: none;
     box-shadow: none;
     width: 100%;
-    
+
 }
 
 .fa-eye-slash.btn {
@@ -93,3 +95,66 @@ input[type='password'] {
 small {
     color: red;
 }
+
+
+
+.badge-dot {
+    border-radius: 50%;
+    height: 10px;
+    width: 10px;
+    margin-left: 2.9rem;
+    margin-top: -.75rem;
+}
+
+
+
+.user-initials {
+    width: 40px;
+    height: 40px;
+    background-color: #4343ff;
+    color: #ffffff;
+    /* White text color */
+    font-size: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+}
+
+.user-name {
+    margin-left: 10px;
+}
+
+.scroll-container {
+    position: relative;
+    height: 400px;
+    overflow: hidden;
+    /* Hide the default scrollbars */
+}
+
+.scroll-container[data-mdb-perfect-scrollbar="true"] {
+    overflow: auto;
+    /* Enable the custom scrollbar */
+}
+
+/* Hide the default scrollbar */
+.scroll-container::-webkit-scrollbar {
+    width: 2px; /* Adjust the width as needed */
+  }
+  
+  /* Style the scrollbar track */
+  .scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  /* Style the scrollbar thumb (the draggable part) */
+  .scroll-container::-webkit-scrollbar-thumb {
+    background: #bebebe; /* Change the color as desired */
+    border-radius: 2px; /* Adjust the radius as needed */
+  }
+  
+  /* Make the scrollbar thumb hover state more visible */
+  .scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #c4c4c4; /* Change the color as desired */
+  }

@@ -1,0 +1,45 @@
+.user-header {
+    display: flex;
+    border-radius: 5px;
+    align-items: center;
+    padding: 10px;
+    background: linear-gradient(to top right, #08aeea 0%, #b721ff 100%);/* WhatsApp header background color */
+    color: #fff; /* Text color */
+    border-bottom: 1px solid #128c7e; /* WhatsApp header border color */
+  }
+  
+  .user-avatar {
+    background-color: #c8911a; /* WhatsApp avatar background color */
+    color: #fff; /* Text color for avatar initials */
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin-right: 10px;
+  }
+  
+  .user-info {
+    flex-grow: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  
+  .user-info p {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .badge-dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #25d366; /* WhatsApp dot color */
+  }
+  
