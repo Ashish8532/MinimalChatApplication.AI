@@ -50,9 +50,14 @@ export class RegisterComponent {
           this.router.navigate(['login']);
         },
         error: (err) => {
-          this.toast.error({detail:"ERROR", summary:err.error.message, duration:3000});
+          if (err.status === 401 || err.status === 400 || err.status === 409 || err.status === 500) {
+            // Display the error message to the user
+            this.toast.error({detail:"ERROR", summary:err.error.message, duration:3000});
+          } else {
+            this.toast.error({detail:"ERROR", summary: "Something went wrong while processing the request.", duration:3000});
+          }
         }
-      })
+      });
     }
     else {
       ValidateForm.validateAllFormFields(this.registerForm);

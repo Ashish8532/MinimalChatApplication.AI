@@ -14,16 +14,27 @@ export class UserListComponent implements OnInit, OnChanges {
   @Input() users: any[] = [];
   @Output() userSelected = new EventEmitter<{ userId: string, userName: string }>();
   selectedUserId: string | null = null;
+  predefinedColors: string[] = ['red', 'blue', 'orange', 'green', 'purple', 'teal'];
   constructor(private userService: UserService, 
     private authService: AuthService,
     private router: Router,
     private toast: NgToastService) {}
 
   ngOnInit() {
-    this.userService.getUserList().subscribe(res => {
-      this.toast.success({detail:"SUCCESS", summary:res.message, duration:3000});
+    this.userService.getUserList().subscribe({
+      next: (res) => {
+        this.toast.success({detail:"SUCCESS", summary:res.message, duration:3000});
       this.users = res.data;
-    })
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 404 || err.status === 500) {
+          // Display the error message to the user
+          this.toast.error({detail:"ERROR", summary:err.error.message, duration:3000});
+        } else {
+          this.toast.error({detail:"ERROR", summary: "Something went wrong while processing the request.", duration:3000});
+        }
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -45,10 +56,11 @@ export class UserListComponent implements OnInit, OnChanges {
     return initials;
   }
   
-  // getRandomColor(): string {
-  //   const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`; // Generates a random hexadecimal color code
-  //   return randomColor;
-  // }
+  getRandomColor(index: number): string {
+    // Use the index to select a color from the predefined array
+    const colorIndex = index % this.predefinedColors.length;
+    return this.predefinedColors[colorIndex];
+  }
 
   
 }

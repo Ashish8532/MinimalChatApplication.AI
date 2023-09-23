@@ -48,7 +48,12 @@ export class LoginComponent {
           this.router.navigate(['chat']);
         },
         error: (err) => {
-          this.toast.error({detail:"ERROR", summary:"Something went wrong.", duration:3000});
+          if (err.status === 401 || err.status === 400 || err.status === 500) {
+            // Display the error message to the user
+            this.toast.error({detail:"ERROR", summary:err.error.message, duration:3000});
+          } else {
+            this.toast.error({detail:"ERROR", summary: "Something went wrong while processing the request.", duration:3000});
+          }
         }
       })
     }

@@ -7,11 +7,11 @@
 </div>
 
   <div class="scroll-container" data-mdb-perfect-scrollbar="true" style="position: relative; height: 400px">
-    <ul class="list-unstyled mb-0" *ngFor="let user of users">
+    <ul class="list-unstyled mb-0" *ngFor="let user of users; let i = index">
       <li class="p-2 border-bottom">
         <a (click)="onUserClick(user.userId, user.name)" [ngClass]="{'selected-user': user.userId === selectedUserId}" class="d-flex justify-content-between">
           <div class="d-flex flex-row">
-            <div class="user-initials">
+            <div class="user-initials fw-bold" [style.backgroundColor]="getRandomColor(i)">
               {{ getInitials(user.name) }}
               <span class="badge bg-success badge-dot"></span>
             </div>
