@@ -12,6 +12,9 @@ import { HeaderComponent } from './shared/components/header/header.component';
 import { UserListComponent } from './pages/components/user-list/user-list.component';
 import { ConversationHistoryComponent } from './pages/components/conversation-history/conversation-history.component';
 import { ChatComponent } from './pages/components/chat/chat.component';
+import { RequestLogComponent } from './pages/components/request-log/request-log.component';
+import { DataTablesModule } from 'angular-datatables';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -22,6 +25,7 @@ import { ChatComponent } from './pages/components/chat/chat.component';
     UserListComponent,
     ConversationHistoryComponent,
     ChatComponent,
+    RequestLogComponent,
   ],
   imports: [
     BrowserModule,
@@ -30,9 +34,11 @@ import { ChatComponent } from './pages/components/chat/chat.component';
     FormsModule,
     NgToastModule,
     HttpClientModule,
+    DataTablesModule
   ],
   providers: [
-    
+    DatePipe, // Add DatePipe to the providers array
+    // ... other providers if you have any
   ],
   bootstrap: [AppComponent]
 })
