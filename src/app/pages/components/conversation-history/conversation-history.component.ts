@@ -2,6 +2,8 @@ import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChi
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from '../../services/message.service';
 import { NgToastService } from 'ng-angular-popup';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-conversation-history',
@@ -16,16 +18,23 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
 
   newMessageContent: string = '';
-
+  
+  editMessageForm!: FormGroup;
 
   selectedMessage: any; // Property to store the selected message
-isContextMenuVisible = false;
-isEditing: boolean = false;
-editedMessageContent: string = '';
+  isContextMenuVisible = false;
+  isEditing: boolean = false;
+  editedMessageContent: string = '';
 
-  constructor(private messageService: MessageService, private toast: NgToastService) {}
+  constructor(private messageService: MessageService, 
+    private toast: NgToastService,
+    private fb: FormBuilder) { }
 
   ngOnInit() {
+    this.editMessageForm = this.fb.group({
+      content: ['', [Validators.required]]
+    });
+    
     if (this.userId) {
       // Fetch the conversation history for the specified user
       this.fetchConversationHistory(this.userId);
@@ -34,22 +43,40 @@ editedMessageContent: string = '';
 
   // Method to fetch conversation history based on the userId
   fetchConversationHistory(userId: string) {
-    this.messageService.getConversationHistory(userId).subscribe(
-      res => {
-        this.toast.success({detail:"SUCCESS", summary:res.message, duration:3000});
+    this.messageService.getConversationHistory(userId).subscribe({
+      next: (res) => {
+        this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
         this.conversationHistory = res.data.reverse(); // Reverse the order for display
         this.scrollToBottom();
-      });
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 400 || err.status === 404 || err.status === 500) {
+          // Display the error message to the user
+          this.toast.error({ detail: "ERROR", summary: err.error.message, duration: 3000 });
+        } else {
+          this.toast.error({ detail: "ERROR", summary: "Something went wrong while processing the request.", duration: 3000 });
+        }
+      }
+    });
   }
 
   fetchMoreConversationHistory(userId: string, before: Date) {
     this.isLoadingMoreMessages = true;
-    this.messageService.getConversationHistory(userId, before).subscribe(
-      res => {
+    this.messageService.getConversationHistory(userId, before).subscribe({
+      next: (res) => {
         const olderMessages = res.data.reverse(); // Reverse to maintain chronological order
         this.conversationHistory = olderMessages.concat(this.conversationHistory);
         this.isLoadingMoreMessages = false;
-      });
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 400 || err.status === 404 || err.status === 500) {
+          // Display the error message to the user
+          this.toast.error({ detail: "ERROR", summary: err.error.message, duration: 3000 });
+        } else {
+          this.toast.error({ detail: "ERROR", summary: "Something went wrong while processing the request.", duration: 3000 });
+        }
+      }
+    });
   }
 
   onScroll() {
@@ -88,6 +115,7 @@ editedMessageContent: string = '';
 
 
   sendMessage() {
+    debugger
     if (this.newMessageContent.trim() === '') {
       // Handle empty message content, show an error message, or disable the send button
       return;
@@ -99,86 +127,129 @@ editedMessageContent: string = '';
     };
 
     // Call the message service to send the message
-    this.messageService.sendMessage(message).subscribe(
-      (response) => {
-        // Message sent successfully, add it to the conversation history
+    this.messageService.sendMessage(message).subscribe({
+      next: (res) => {
         this.conversationHistory.push({
+          messageId: res.data.messageId,
+          senderId: res.data.senderId,
           receiverId: this.userId, // Assuming the sender is the current user
           content: this.newMessageContent,
-          timestamp: new Date().toISOString() // You can update the timestamp based on your requirements
+          timestamp: res.data.timestamp // You can update the timestamp based on your requirements
         });
         // Clear the input box after sending the message
         this.newMessageContent = '';
         this.scrollToBottom();
       },
-      (error) => {
-        // Handle error when the message fails to send
-        console.error('Error sending message:', error);
+      error: (err) => {
+        if (err.status === 401 || err.status === 400 || err.status === 500) {
+          // Display the error message to the user
+          this.toast.error({ detail: "ERROR", summary: err.error.message, duration: 3000 });
+        } else {
+          this.toast.error({ detail: "ERROR", summary: "Something went wrong while processing the request.", duration: 3000 });
+        }
       }
-    );
+    });
   }
 
   // Function to show the context menu
-showContextMenu(event: MouseEvent, message: any) {
-  event.preventDefault(); // Prevent the default context menu from appearing
-  this.selectedMessage = message; // Store the selected message
-  this.isContextMenuVisible = true; // Display the context menu
-  this.isEditing = true;
-  this.positionContextMenu(event.clientX, event.clientY); // Position the menu near the cursor
-}
+  showContextMenu(event: MouseEvent, message: any) {
+    event.preventDefault(); // Prevent the default context menu from appearing
+    this.selectedMessage = message; // Store the selected message
+    this.isContextMenuVisible = true; // Display the context menu
+    this.isEditing = false;
+    this.scrollToBottom();
+  }
 
   // Function to hide the context menu
-hideContextMenu() {
-  this.selectedMessage = null; // Clear the selected message
-  this.isContextMenuVisible = false; // Hide the context menu
-}
+  hideContextMenu() {
+    this.selectedMessage = null;
+    this.isContextMenuVisible = false;
+  }
 
-// Function to position the context menu
-positionContextMenu(x: number, y: number) {
-  // Position the context menu at the specified coordinates (x, y)
-  // You can use CSS styles or JavaScript to set the menu's position
-  // For example:
-  const contextMenu = document.querySelector('.context-menu') as HTMLElement;
-  contextMenu.style.left = x + 'px';
-  contextMenu.style.top = y + 'px';
-}
+
   // Function to edit a message
-editMessage(message: any) {
-  // Initialize the editedMessageContent with the original message content
-  this.selectedMessage = message.content;
+  editMessageTextBox(message: any) {
+    this.selectedMessage = message;
+    this.isContextMenuVisible = false;
+    this.isEditing = true;
+    this.scrollToBottom();
+  }
+  // Function to accept the edited message
+  editMessage(message: any) {
+    debugger
+    
+    this.messageService.updateMessage(message.messageId, message.content).subscribe({
+      next: (res) => {
+        this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
+        this.conversationHistory.push({
+          messageId: message.messageId,
+          senderId: message.senderId,
+          receiverId: this.userId, // Assuming the sender is the current user
+          content: message.content,
+          timestamp: new Date().toISOString() // You can update the timestamp based on your requirements
+        });
 
-  // Display the inline editor and hide the context menu
-  this.isContextMenuVisible = false;
-}
-// Function to accept the edited message
-acceptEdit(message: any) {
-  debugger
-  
-  // Make an API request to update the message content on the server
-  this.messageService.updateMessage(message.messageId, message.content).subscribe(
-    (updatedMessage: any) => {
-      // Update the message locally with the updated content
-      message.content = updatedMessage.content;
-     this.conversationHistory.content = message.content;
+        // Exit edit mode
+        this.isContextMenuVisible = false;
+        this.isEditing = false;
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 400 || err.status === 404 || err.status === 500) {
+          // Display the error message to the user
+          this.toast.error({ detail: "ERROR", summary: err.error.message, duration: 3000 });
+        } else {
+          this.toast.error({ detail: "ERROR", summary: "Something went wrong while processing the request.", duration: 3000 });
+        }
+      }
+    });
+  }
 
-      // Exit edit mode
-      this.isContextMenuVisible = false;
-      this.isEditing = false;
-      this.fetchConversationHistory(this.userId);
-    },
-    (error: any) => {
-      // Handle any errors that occurred during the update
-      console.error('Error updating message:', error);
-      // You can display an error message to the user if needed
-    }
-  );
-}
+  // Function to cancel the edit and discard changes
+  cancelEdit() {
+    this.isContextMenuVisible = false;
+    this.isEditing = false;
+  }
 
-// Function to cancel the edit and discard changes
-cancelEdit() {
-  // Simply exit edit mode by hiding the inline editor
-  this.isContextMenuVisible = false;
-  this.isEditing = false;
-}
+  confirmDelete(messageId: number) {
+    debugger
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover this item!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, keep it',
+    }).then((result) => {
+      if (result.value) {
+        // User confirmed deletion
+        this.deleteMessage(messageId)
+        Swal.fire('Deleted!', 'Your item has been deleted.', 'success');
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        // User canceled deletion
+        Swal.fire('Cancelled', 'Your item is safe :)', 'error');
+      }
+    });
+  }
 
+  deleteMessage(messageId: number)
+  {
+    debugger
+    // Make an API request to delete the message on the server
+    this.messageService.deleteMessage(messageId).subscribe({
+      next: (res) => {
+        // Remove the deleted message from the conversation history
+        this.conversationHistory = this.conversationHistory.filter((m: any) => m.messageId !== messageId);
+        this.isContextMenuVisible = false;
+        this.isEditing = false;
+        Swal.fire('Deleted!', res.message, 'success');
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 404 || err.status === 500) {
+          Swal.fire('Error', err.error.message, 'error');
+        } else {
+          Swal.fire('Error', 'Something went wrong while processing the request.', 'error');
+        }
+      }
+    });
+  }
 }

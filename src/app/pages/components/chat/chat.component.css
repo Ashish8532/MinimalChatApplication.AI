@@ -6,3 +6,7 @@
     border-color: transparent;
     box-shadow: inset 0px 0px 0px 1px transparent;
 }
+
+section {
+    background: radial-gradient(circle at 22.4% 21.7%, rgb(2, 83, 185) 0%, rgb(4, 189, 228) 100.2%);
+}
