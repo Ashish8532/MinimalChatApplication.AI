@@ -48,31 +48,28 @@
               style="width: 45px; height: 100%;">
           </div>
         </div>
-        
 
-        <!-- Inline editor for editing messages -->
-        <div *ngIf="isEditing && message === selectedMessage" class="message-editor">
+         <!-- Inline editor for editing messages -->
+         <div *ngIf="isEditing && message === selectedMessage" class="message-editor" [formGroup]="editForm">
           <!-- Inline editor for editing messages -->
-          <input type="text" [(ngModel)]="selectedMessage.content" style="box-shadow: none; border: none;"
-            class="form-control form-control-lg border-bottom bg-light">
+          <input type="text" formControlName="content" [(ngModel)]="selectedMessage.content"
+            style="box-shadow: none; border: none;" class="form-control form-control-lg border-bottom bg-light" (keydown.enter)="editMessage(message)">
+            <div *ngIf="editForm.get('content')?.hasError('required')" class="text-danger mb-2">
+              Content is required.
+            </div>
           <div class="editor-buttons">
-            <button class="btn btn-primary me-sm-2" (click)="editMessage(message)">Save</button>
+            <button class="btn btn-primary me-sm-2" (click)="editMessage(message)" [disabled]="editForm.invalid">Save</button>
             <button class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
           </div>
         </div>
-        
       </ng-container>
-      
     </div>
-    
     <div class="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
       <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp" alt="avatar" class="rounded-circle me-sm-2"
         style="width: 40px; height: 100%;">
       <input type="text" [(ngModel)]="newMessageContent" class="form-control form-control-lg border-bottom bg-light"
-        placeholder="Type message" style="box-shadow: none; border: none;">
+        placeholder="Send message. . ." style="box-shadow: none; border: none;" (keydown.enter)="sendMessage()">
       <a class="ms-3" (click)="sendMessage()"><i class="fa fa-paper-plane"></i></a>
     </div>
-
   </div>
-  
 </div>

@@ -8,11 +8,14 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarColor01">
           <ul class="navbar-nav me-auto">
+            <li class="nav-item" *ngIf="isLoggedIn()">
+              <a class="nav-link active" routerLink="/chat">Chats</a>
+            </li>
             <li class="nav-item">
-              <a class="nav-link active" routerLink="/logs">Logs
-                <span class="visually-hidden">(current)</span>
+              <a class="nav-link active" routerLink="/logs" *ngIf="isLoggedIn()">Logs
               </a>
             </li>
+           
           </ul>
           <div class="float-right">
             <div class="d-flex" *ngIf="!isLoggedIn()">

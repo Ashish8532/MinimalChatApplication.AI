@@ -15,6 +15,7 @@ import { ChatComponent } from './pages/components/chat/chat.component';
 import { RequestLogComponent } from './pages/components/request-log/request-log.component';
 import { DataTablesModule } from 'angular-datatables';
 import { DatePipe } from '@angular/common';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { DatePipe } from '@angular/common';
     FormsModule,
     NgToastModule,
     HttpClientModule,
-    DataTablesModule
+    DataTablesModule,
+    PaginationModule.forRoot(),
   ],
   providers: [
     DatePipe, // Add DatePipe to the providers array

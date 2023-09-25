@@ -8,6 +8,7 @@ import { authGuard } from './pages/guard/auth.guard';
 import { RequestLogComponent } from './pages/components/request-log/request-log.component';
 
 const routes: Routes = [
+  { path:'', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
   {
@@ -15,7 +16,7 @@ const routes: Routes = [
       { path: 'user/:userId', component: ConversationHistoryComponent }, // Add route with user parameter
     ], canActivate: [authGuard]
   },
-  { path: 'logs', component: RequestLogComponent, canActivate: [authGuard] }
+  { path: 'logs', component: RequestLogComponent, canActivate: [authGuard] },
 ];
 
 @NgModule({
