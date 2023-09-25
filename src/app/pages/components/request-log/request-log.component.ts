@@ -53,10 +53,10 @@ export class RequestLogComponent implements OnInit{
   }
 
   selectTimeframe(): void {
-    const selectedTimeframe = this.timeframeForm.get('timeframe')?.value;
+    this.selectedTimeframe = this.timeframeForm.get('timeframe')?.value;
     const currentTime = new Date();
 
-    switch (selectedTimeframe) {
+    switch (this.selectedTimeframe) {
       case '5':
         this.startTime = this.datePipe.transform(currentTime.getTime() - 5 * 60 * 1000, 'yyyy-MM-ddTHH:mm:ss') || null;
         break;
