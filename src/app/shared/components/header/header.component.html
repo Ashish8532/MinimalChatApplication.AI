@@ -8,11 +8,14 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarColor01">
           <ul class="navbar-nav me-auto">
+            <li class="nav-item" *ngIf="isLoggedIn()">
+              <a class="nav-link active" routerLink="/chat">Chats</a>
+            </li>
             <li class="nav-item">
-              <a class="nav-link active" routerLink="/product">Home
-                <span class="visually-hidden">(current)</span>
+              <a class="nav-link active" routerLink="/logs" *ngIf="isLoggedIn()">Logs
               </a>
             </li>
+           
           </ul>
           <div class="float-right">
             <div class="d-flex" *ngIf="!isLoggedIn()">
@@ -23,8 +26,8 @@
                 <a class="btn btn-danger" routerLink="/login">Login</a>
               </div>
             </div>
-            <a *ngIf="isLoggedIn()" (click)="logout()" class="btn btn-danger fw-bold" asp-area="Users" asp-controller="Home"
-            asp-action="Logout" style="background-color: rgb(191, 0, 0);">Logout</a>
+            <a *ngIf="isLoggedIn()" (click)="logout()" class="btn btn-danger fw-bold" 
+             style="background-color: rgb(191, 0, 0);">Logout</a>
         </div>
           
         </div>

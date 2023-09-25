@@ -1,0 +1,101 @@
+<div class="container">
+  <div class="card m-5 p-3">
+    <div class="card-body">
+      <div class="col-12">
+        <h2 class="text-Dark"><b>Log List</b></h2>
+      </div>
+      <hr>
+
+      <div class="row mb-3">
+        <div class="col-2">
+          <form [formGroup]="timeframeForm">
+            <div class="form-group">
+              <label for="timeframe">Select Timeframe:</label>
+              <select id="timeframe" formControlName="timeframe" class="form-select form-select-lg mb-3"
+                aria-label=".form-select-lg example" (change)="selectTimeframe()">
+                <option value="5">Last 5 mins</option>
+                <option value="10">Last 10 mins</option>
+                <option value="30">Last 30 mins</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+          </form>
+        </div>
+
+        <!-- Custom Date Range Picker -->
+        <div class="col-10 row form-group" *ngIf="selectedTimeframe === 'custom'">
+          <div class="col-4 me-sm-3">
+            <label for="customStartDate">Start Date:</label>
+            <input type="datetime-local" id="customStartDate" class="form-control mt-1" [(ngModel)]="startTime" />
+          </div>
+
+          <div class="col-4 me-sm-2">
+            <label for="customEndDate">End Date:</label>
+            <input type="datetime-local" id="customEndDate" class="form-control mt-1" [(ngModel)]="endTime" />
+          </div>
+
+          <div class="col-2" style="margin-top: 28px;">
+            <button type="button" class="btn btn-primary" (click)="onCustomRangeSubmit()">Fetch Logs</button>
+          </div>
+        </div>
+      </div>
+      <!-- Column Visibility Controls -->
+      <div class="form-group d-flex mb-4">
+        <label class="me-sm-3">Select Columns to Show:</label>
+        <div class="form-check me-sm-3">
+          <input class="form-check-input" type="checkbox" id="showId" [(ngModel)]="showId" />
+          <label class="form-check-label" for="showId">ID</label>
+        </div>
+        <div class="form-check me-sm-3">
+          <input class="form-check-input" type="checkbox" id="showTimestamp" [(ngModel)]="showTimestamp" />
+          <label class="form-check-label" for="showTimestamp">Timestamp</label>
+        </div>
+        <div class="form-check me-sm-3">
+          <input class="form-check-input" type="checkbox" id="showIpAddress" [(ngModel)]="showIpAddress" />
+          <label class="form-check-label" for="showIpAddress">IpAddress</label>
+        </div>
+        <div class="form-check me-sm-3">
+          <input class="form-check-input" type="checkbox" id="showRequestBody" [(ngModel)]="showRequestBody" />
+          <label class="form-check-label" for="showRequestBody">Request Body</label>
+        </div>
+        <div class="form-check me-sm-3">
+          <input class="form-check-input" type="checkbox" id="showUsername" [(ngModel)]="showUsername" />
+          <label class="form-check-label" for="showUsername">Username</label>
+        </div>
+      </div>
+
+      <hr>
+      <div class="table-responsive" *ngIf="logs && logs.length > 0">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th *ngIf="showId">ID</th>
+              <th *ngIf="showTimestamp">Timestamp</th>
+              <th *ngIf="showIpAddress">IpAddress</th>
+              <th *ngIf="showRequestBody">Request Body</th>
+              <th *ngIf="showUsername">Username</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let log of logs">
+              <td *ngIf="showId">{{ log.id }}</td>
+              <td *ngIf="showTimestamp">{{ log.timestamp }}</td>
+              <td *ngIf="showIpAddress">{{ log.ipAddress }}</td>
+              <td *ngIf="showRequestBody">{{ log.requestBody }}</td>
+              <td *ngIf="showUsername">{{ log.username }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- Add this code below the table -->
+        <div class="d-flex justify-content-center">
+          <pagination [totalItems]="totalItems" [(ngModel)]="currentPage" [itemsPerPage]="itemsPerPage" (pageChanged)="onPageChange($event)"></pagination>
+
+        </div>
+      </div>
+      <!-- Display a message if there are no logs -->
+      <div class="alert alert-info" *ngIf="logs.length === 0">No logs to display.</div>
+
+    </div>
+
+  </div>
+</div>

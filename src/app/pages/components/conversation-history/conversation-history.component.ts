@@ -19,7 +19,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
 
   newMessageContent: string = '';
   
-  editMessageForm!: FormGroup;
+  editForm!: FormGroup;
 
   selectedMessage: any; // Property to store the selected message
   isContextMenuVisible = false;
@@ -31,8 +31,8 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     private fb: FormBuilder) { }
 
   ngOnInit() {
-    this.editMessageForm = this.fb.group({
-      content: ['', [Validators.required]]
+    this.editForm = this.fb.group({
+      content: ['', Validators.required] // Add the required validator
     });
     
     if (this.userId) {
@@ -45,7 +45,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   fetchConversationHistory(userId: string) {
     this.messageService.getConversationHistory(userId).subscribe({
       next: (res) => {
-        this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
         this.conversationHistory = res.data.reverse(); // Reverse the order for display
         this.scrollToBottom();
       },
@@ -176,20 +175,11 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   }
   // Function to accept the edited message
   editMessage(message: any) {
-    debugger
-    
     this.messageService.updateMessage(message.messageId, message.content).subscribe({
       next: (res) => {
         this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
-        this.conversationHistory.push({
-          messageId: message.messageId,
-          senderId: message.senderId,
-          receiverId: this.userId, // Assuming the sender is the current user
-          content: message.content,
-          timestamp: new Date().toISOString() // You can update the timestamp based on your requirements
-        });
 
-        // Exit edit mode
+        this.fetchConversationHistory(this.userId);
         this.isContextMenuVisible = false;
         this.isEditing = false;
       },
