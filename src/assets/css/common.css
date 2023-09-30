@@ -157,3 +157,11 @@ small {
   .scroll-container::-webkit-scrollbar-thumb:hover {
     background: #c4c4c4; /* Change the color as desired */
   }
+
+  .divider:after,
+.divider:before {
+content: "";
+flex: 1;
+height: 1px;
+background: #eee;
+}

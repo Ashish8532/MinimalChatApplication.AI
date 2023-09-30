@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgToastService } from 'ng-angular-popup';
@@ -6,6 +6,8 @@ import NoSpaceAllowed from 'src/app/shared/helpers/nospace-allowed';
 import ValidateForm from 'src/app/shared/helpers/validate-forms';
 import ValidatePassword from 'src/app/shared/helpers/validate-password';
 import { AuthService } from '../../services/auth.service';
+import { GoogleLoginProvider, SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -19,10 +21,31 @@ export class LoginComponent {
 
   loginForm!: FormGroup;
 
+  user!: SocialUser | null; 
+  
   constructor(private formBuilder: FormBuilder, 
     private authService: AuthService, 
     private router: Router,
-    private toast: NgToastService) { }
+    private toast: NgToastService,
+    private socialAuthService: SocialAuthService) {
+      this.user = null;
+      this.socialAuthService.authState.subscribe((user: SocialUser) => {
+        debugger
+        console.log(user);
+        if (user) {
+          debugger
+          this.authService.googleSignIn(user.idToken.toString()).subscribe(
+            {
+              next: (res) => {
+                this.authService.storeToken(res.jwtToken);
+                this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
+                this.router.navigate(['chat']);
+              }
+            })  
+        }
+        this.user = user;
+      });
+    }
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
@@ -46,14 +69,6 @@ export class LoginComponent {
           this.authService.storeToken(res.jwtToken);
           this.toast.success({detail:"SUCCESS", summary:res.message, duration:3000});
           this.router.navigate(['chat']);
-        },
-        error: (err) => {
-          if (err.status === 401 || err.status === 400 || err.status === 500) {
-            // Display the error message to the user
-            this.toast.error({detail:"ERROR", summary:err.error.message, duration:3000});
-          } else {
-            this.toast.error({detail:"ERROR", summary: "Something went wrong while processing the request.", duration:3000});
-          }
         }
       })
     }
@@ -61,5 +76,9 @@ export class LoginComponent {
       ValidateForm.validateAllFormFields(this.loginForm);
       this.toast.error({detail:"ERROR", summary:"Form is not valid.", duration:3000});
     }
+  }
+
+  loginWithGoogle(): void {
+    this.authService.loginWithGoogle();
   }
 }

@@ -61,6 +61,4 @@ export class UserListComponent implements OnInit, OnChanges {
     const colorIndex = index % this.predefinedColors.length;
     return this.predefinedColors[colorIndex];
   }
-
-  
 }

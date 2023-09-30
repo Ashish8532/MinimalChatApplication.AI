@@ -13,8 +13,11 @@
                                 <div
                                     class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
                                     <p class="lead fw-normal mb-0 me-3">Sign in with</p>
+                                    <div class="btn-floating mx-1" (click)="loginWithGoogle()">
+                                        <asl-google-signin-button type='icon' size='large'></asl-google-signin-button>
+                                    </div>
                                     <button type="button" class="btn btn-primary btn-floating mx-1">
-                                        <i class="fa fa-facebook-f"></i>
+                                        <i class="fa fa-facebook"></i>
                                     </button>
 
                                     <button type="button" class="btn btn-primary btn-floating mx-1">
