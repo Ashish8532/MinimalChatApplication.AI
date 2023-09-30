@@ -7,6 +7,7 @@ import NoConsecutiveSpaces from 'src/app/shared/helpers/no-consecutive-spaces';
 import NoSpaceAllowed from 'src/app/shared/helpers/nospace-allowed';
 import ValidatePassword from 'src/app/shared/helpers/validate-password';
 import ValidateForm from 'src/app/shared/helpers/validate-forms';
+import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
 
 @Component({
   selector: 'app-register',
@@ -20,10 +21,29 @@ export class RegisterComponent {
 
   registerForm!: FormGroup;
 
+  user!: SocialUser | null;
+  
   constructor(private formBuilder: FormBuilder, 
     private authService: AuthService, 
     private router: Router,
-    private toast: NgToastService) { }
+    private toast: NgToastService,
+    private socialAuthService: SocialAuthService) {
+      this.user = null;
+      this.socialAuthService.authState.subscribe((user: SocialUser) => {
+        console.log(user);
+        if (user) {
+          this.authService.googleSignIn(user.idToken.toString()).subscribe(
+            {
+              next: (res) => {
+                this.authService.storeToken(res.jwtToken);
+                this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
+                this.router.navigate(['chat']);
+              }
+            })  
+        }
+        this.user = user;
+      });
+    }
 
   ngOnInit(): void {
     this.registerForm = this.formBuilder.group({
@@ -48,14 +68,6 @@ export class RegisterComponent {
           this.registerForm.reset();
           this.toast.success({detail:"SUCCESS", summary:res.message, duration:3000});
           this.router.navigate(['login']);
-        },
-        error: (err) => {
-          if (err.status === 401 || err.status === 400 || err.status === 409 || err.status === 500) {
-            // Display the error message to the user
-            this.toast.error({detail:"ERROR", summary:err.error.message, duration:3000});
-          } else {
-            this.toast.error({detail:"ERROR", summary: "Something went wrong while processing the request.", duration:3000});
-          }
         }
       });
     }

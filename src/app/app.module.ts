@@ -16,6 +16,7 @@ import { RequestLogComponent } from './pages/components/request-log/request-log.
 import { DataTablesModule } from 'angular-datatables';
 import { DatePipe } from '@angular/common';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { GoogleLoginProvider, GoogleSigninButtonModule, SocialAuthServiceConfig, SocialLoginModule } from '@abacritt/angularx-social-login';
 
 @NgModule({
   declarations: [
@@ -37,10 +38,26 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
     HttpClientModule,
     DataTablesModule,
     PaginationModule.forRoot(),
+    SocialLoginModule,
+    GoogleSigninButtonModule
   ],
   providers: [
-    DatePipe, // Add DatePipe to the providers array
-    // ... other providers if you have any
+    DatePipe,
+    {
+      provide: 'SocialAuthServiceConfig',
+      useValue: {
+        autoLogin: false,
+        providers: [
+          {
+            id: GoogleLoginProvider.PROVIDER_ID,
+            provider: new GoogleLoginProvider(
+              '768783138443-c7isjgieo2e1e75f2scm44glt2cc2ca4.apps.googleusercontent.com' 
+            ),
+          },
+          // Other providers if needed...
+        ],
+      } as SocialAuthServiceConfig,
+    },
   ],
   bootstrap: [AppComponent]
 })

@@ -1,5 +1,4 @@
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { MessageService } from '../../services/message.service';
 import { NgToastService } from 'ng-angular-popup';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -18,7 +17,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
 
   newMessageContent: string = '';
-  
+
   editForm!: FormGroup;
 
   selectedMessage: any; // Property to store the selected message
@@ -26,7 +25,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   isEditing: boolean = false;
   editedMessageContent: string = '';
 
-  constructor(private messageService: MessageService, 
+  constructor(private messageService: MessageService,
     private toast: NgToastService,
     private fb: FormBuilder) { }
 
@@ -34,7 +33,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     this.editForm = this.fb.group({
       content: ['', Validators.required] // Add the required validator
     });
-    
+
     if (this.userId) {
       // Fetch the conversation history for the specified user
       this.fetchConversationHistory(this.userId);
@@ -47,14 +46,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       next: (res) => {
         this.conversationHistory = res.data.reverse(); // Reverse the order for display
         this.scrollToBottom();
-      },
-      error: (err) => {
-        if (err.status === 401 || err.status === 400 || err.status === 404 || err.status === 500) {
-          // Display the error message to the user
-          this.toast.error({ detail: "ERROR", summary: err.error.message, duration: 3000 });
-        } else {
-          this.toast.error({ detail: "ERROR", summary: "Something went wrong while processing the request.", duration: 3000 });
-        }
       }
     });
   }
@@ -68,12 +59,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
         this.isLoadingMoreMessages = false;
       },
       error: (err) => {
-        if (err.status === 401 || err.status === 400 || err.status === 404 || err.status === 500) {
-          // Display the error message to the user
-          this.toast.error({ detail: "ERROR", summary: err.error.message, duration: 3000 });
-        } else {
-          this.toast.error({ detail: "ERROR", summary: "Something went wrong while processing the request.", duration: 3000 });
-        }
+        this.isLoadingMoreMessages = false;
       }
     });
   }
@@ -114,7 +100,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
 
 
   sendMessage() {
-    debugger
     if (this.newMessageContent.trim() === '') {
       // Handle empty message content, show an error message, or disable the send button
       return;
@@ -128,24 +113,14 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     // Call the message service to send the message
     this.messageService.sendMessage(message).subscribe({
       next: (res) => {
-        this.conversationHistory.push({
-          messageId: res.data.messageId,
-          senderId: res.data.senderId,
-          receiverId: this.userId, // Assuming the sender is the current user
-          content: this.newMessageContent,
-          timestamp: res.data.timestamp // You can update the timestamp based on your requirements
-        });
-        // Clear the input box after sending the message
+        const existingMessage = this.conversationHistory.find((m: any) => m.messageId === res.data.messageId);
+        if (!existingMessage) {
+          this.conversationHistory.push(res.data);
+          this.scrollToBottom();
+        }
+        this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
         this.newMessageContent = '';
         this.scrollToBottom();
-      },
-      error: (err) => {
-        if (err.status === 401 || err.status === 400 || err.status === 500) {
-          // Display the error message to the user
-          this.toast.error({ detail: "ERROR", summary: err.error.message, duration: 3000 });
-        } else {
-          this.toast.error({ detail: "ERROR", summary: "Something went wrong while processing the request.", duration: 3000 });
-        }
       }
     });
   }
@@ -179,17 +154,12 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       next: (res) => {
         this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
 
-        this.fetchConversationHistory(this.userId);
+        const editedMessage = this.conversationHistory.find((m: any) => m.messageId === message.messageId);
+        if (editedMessage) {
+          this.conversationHistory.content = message.content;
+        }
         this.isContextMenuVisible = false;
         this.isEditing = false;
-      },
-      error: (err) => {
-        if (err.status === 401 || err.status === 400 || err.status === 404 || err.status === 500) {
-          // Display the error message to the user
-          this.toast.error({ detail: "ERROR", summary: err.error.message, duration: 3000 });
-        } else {
-          this.toast.error({ detail: "ERROR", summary: "Something went wrong while processing the request.", duration: 3000 });
-        }
       }
     });
   }
@@ -201,7 +171,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   }
 
   confirmDelete(messageId: number) {
-    debugger
     Swal.fire({
       title: 'Are you sure?',
       text: 'You will not be able to recover this item!',
@@ -221,9 +190,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     });
   }
 
-  deleteMessage(messageId: number)
-  {
-    debugger
+  deleteMessage(messageId: number) {
     // Make an API request to delete the message on the server
     this.messageService.deleteMessage(messageId).subscribe({
       next: (res) => {
