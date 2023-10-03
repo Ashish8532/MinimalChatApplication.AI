@@ -2,8 +2,10 @@ import { GoogleLoginProvider, SocialAuthService, SocialUser } from '@abacritt/an
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import jwtDecode from 'jwt-decode';
 import { NgToastService } from 'ng-angular-popup';
-import { Observable, catchError, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, catchError, throwError } from 'rxjs';
+import GetToken from 'src/app/shared/helpers/get-token';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +14,8 @@ export class AuthService {
 
   private baseUrl: string = "https://localhost:44394/api";
   user!: SocialUser | null;
+  private usernameSubject = new BehaviorSubject<string>('');
+  
   constructor(private http: HttpClient,
     private router: Router,
     private toast: NgToastService,
@@ -49,27 +53,20 @@ export class AuthService {
   }
 
   storeToken(tokenValue: string) {
-    localStorage.setItem('token', tokenValue)
+    const decodedToken = GetToken.decodeToken(tokenValue);
+    const username = decodedToken.Username;
+    localStorage.setItem('token', tokenValue);
+    this.usernameSubject.next(username);
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('token');
-  }
-
-  // Add JWT token to headers
-  private getHeaders(): HttpHeaders {
-    const token = this.getToken();
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
+  getUsername(): Observable<string> {
+    return this.usernameSubject.asObservable();
   }
 
   // Login
   login(loginData: any): Observable<any> {
-    const headers = this.getHeaders();
     const url = `${this.baseUrl}/login`;
-    return this.http.post(url, loginData, { headers }).pipe(
+    return this.http.post(url, loginData).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 
@@ -80,6 +77,7 @@ export class AuthService {
 
   logOut() {
     localStorage.clear();
+    localStorage.removeItem('token');
     this.user = null;
     this.socialAuthService.signOut();
     this.router.navigate(['login']);

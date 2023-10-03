@@ -26,8 +26,26 @@
                 <a class="btn btn-danger" routerLink="/login">Login</a>
               </div>
             </div>
-            <a *ngIf="isLoggedIn()" (click)="logout()" class="btn btn-danger fw-bold" 
-             style="background-color: rgb(191, 0, 0);">Logout</a>
+            <div class="d-flex align-items-center" *ngIf="isLoggedIn()">
+              <div class="me-2 d-flex me-sm-2">
+                <!-- User Initials with Bootstrap styling -->
+                <div class="initials me-2 fw-bold">
+                  {{ getInitials(username) }}
+                </div>
+            
+                <!-- User Name with Bootstrap styling -->
+                <div>
+                  <p class="username mb-0 text-white h5">{{ username }}</p>
+                </div>
+              </div>
+            
+              <!-- Logout Button with Bootstrap styling -->
+              <div class="mt-1">
+                <a (click)="logout()" class="text-decoration-none">
+                  <i class="fa fa-sign-out" aria-hidden="true" style="font-size: 30px; color: brown;"></i>
+                </a>
+              </div>
+            </div>
         </div>
           
         </div>

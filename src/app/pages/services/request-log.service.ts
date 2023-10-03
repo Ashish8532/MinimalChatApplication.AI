@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import GetToken from 'src/app/shared/helpers/get-token';
 
 @Injectable({
   providedIn: 'root'
@@ -10,22 +11,10 @@ export class RequestLogService {
 
   constructor(private http: HttpClient) {}
 
-  getToken(): string | null {
-    return localStorage.getItem('token');
-  }
-
-  // Add JWT token to headers
-  private getHeaders(): HttpHeaders {
-    const token = this.getToken();
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
-  }
-  
+    
   getLogs(startTime?: string, endTime?: string): Observable<any> {
     debugger
-    const headers = this.getHeaders();
+    const headers = GetToken.getHeaders();
     let params = new HttpParams();
     if (startTime) {
       params = params.set('startTime', startTime);

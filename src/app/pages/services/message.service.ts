@@ -2,28 +2,18 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular
 import { Injectable } from '@angular/core';
 import { NgToastService } from 'ng-angular-popup';
 import { Observable, catchError, throwError } from 'rxjs';
+import GetToken from 'src/app/shared/helpers/get-token';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessageService {
 
-  private apiUrl = 'https://localhost:44394/api/messages'; // Replace with your API URL
+  private apiUrl = 'https://localhost:44394/api/messages'; 
+  private searchApi = 'https://localhost:44394/api/conversation';
 
   constructor(private http: HttpClient, private toast: NgToastService) {}
 
-  getToken(): string | null {
-    return localStorage.getItem('token');
-  }
-
-  // Add JWT token to headers
-  private getHeaders(): HttpHeaders {
-    const token = this.getToken();
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
-  }
 
   private handleApiError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = '';
@@ -44,7 +34,7 @@ export class MessageService {
 
 
   getConversationHistory(userId: string, before?: Date, count: number = 20, sort: string = 'desc'): Observable<any> {
-    const headers = this.getHeaders();
+    const headers = GetToken.getHeaders();
     // Create query parameters
     let params = new HttpParams()
       .set('userId', userId)
@@ -60,7 +50,7 @@ export class MessageService {
 
   // Send new Message
   sendMessage(message: { receiverId: string, content: string }): Observable<any> {
-    const headers = this.getHeaders();
+    const headers = GetToken.getHeaders();
     return this.http.post(this.apiUrl, message, { headers }).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
@@ -70,7 +60,7 @@ export class MessageService {
     const updatedMessage = {
       content: newContent
     };
-    const headers = this.getHeaders();
+    const headers = GetToken.getHeaders();
     const url = `${this.apiUrl}/${messageId}`;
     return this.http.put(url, updatedMessage, { headers }).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
@@ -78,8 +68,20 @@ export class MessageService {
 
   // Delete Message
   deleteMessage(messageId: number): Observable<any> {
-    const headers = this.getHeaders();
+    const headers = GetToken.getHeaders();
     const deleteUrl = `${this.apiUrl}/${messageId}`; 
     return this.http.delete(deleteUrl, {headers});
+  }
+
+
+  searchConversations(query: string): Observable<any> {
+    debugger
+    let params = new HttpParams()
+      .set('query', query);
+    
+    const headers = GetToken.getHeaders();
+    const url = `${this.searchApi}/search`;
+    return this.http.get(url, { params, headers }).pipe(
+      catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 }
