@@ -13,8 +13,6 @@ export class RequestLogService {
 
     
   getLogs(startTime?: string, endTime?: string): Observable<any> {
-    debugger
-    const headers = GetToken.getHeaders();
     let params = new HttpParams();
     if (startTime) {
       params = params.set('startTime', startTime);
@@ -23,6 +21,6 @@ export class RequestLogService {
       params = params.set('endTime', endTime);
     }
 
-    return this.http.get(this.baseUrl, { params, headers });
+    return this.http.get(this.baseUrl, { params});
   }
 }

@@ -34,7 +34,7 @@ export class MessageService {
 
 
   getConversationHistory(userId: string, before?: Date, count: number = 20, sort: string = 'desc'): Observable<any> {
-    const headers = GetToken.getHeaders();
+    // const headers = GetToken.getHeaders();
     // Create query parameters
     let params = new HttpParams()
       .set('userId', userId)
@@ -44,14 +44,14 @@ export class MessageService {
     if (before) {
       params = params.set('before', before.toISOString());
     }
-    return this.http.get(`${this.apiUrl}`, { params, headers }).pipe(
+    return this.http.get(`${this.apiUrl}`, { params}).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 
   // Send new Message
   sendMessage(message: { receiverId: string, content: string }): Observable<any> {
-    const headers = GetToken.getHeaders();
-    return this.http.post(this.apiUrl, message, { headers }).pipe(
+    // const headers = GetToken.getHeaders();
+    return this.http.post(this.apiUrl, message, {}).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 
@@ -60,17 +60,17 @@ export class MessageService {
     const updatedMessage = {
       content: newContent
     };
-    const headers = GetToken.getHeaders();
+    // const headers = GetToken.getHeaders();
     const url = `${this.apiUrl}/${messageId}`;
-    return this.http.put(url, updatedMessage, { headers }).pipe(
+    return this.http.put(url, updatedMessage, {}).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 
   // Delete Message
   deleteMessage(messageId: number): Observable<any> {
-    const headers = GetToken.getHeaders();
+    // const headers = GetToken.getHeaders();
     const deleteUrl = `${this.apiUrl}/${messageId}`; 
-    return this.http.delete(deleteUrl, {headers});
+    return this.http.delete(deleteUrl, {});
   }
 
 
@@ -79,9 +79,9 @@ export class MessageService {
     let params = new HttpParams()
       .set('query', query);
     
-    const headers = GetToken.getHeaders();
+    // const headers = GetToken.getHeaders();
     const url = `${this.searchApi}/search`;
-    return this.http.get(url, { params, headers }).pipe(
+    return this.http.get(url, { params}).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 }

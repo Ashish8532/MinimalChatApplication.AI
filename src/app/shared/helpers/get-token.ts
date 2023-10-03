@@ -7,13 +7,13 @@ export default class GetToken {
       }
     
       // Add JWT token to headers
-    static getHeaders(): HttpHeaders {
-        const token = this.getToken();
-        return new HttpHeaders({
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        });
-      }
+    // static getHeaders(): HttpHeaders {
+    //     const token = this.getToken();
+    //     return new HttpHeaders({
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${token}`
+    //     });
+    //   }
 
       static decodeToken(token: string): any {
         const decodedToken = jwtDecode(token);

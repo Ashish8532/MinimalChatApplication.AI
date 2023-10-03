@@ -100,8 +100,8 @@ export class RequestLogComponent implements OnInit{
       });
     }
   }
+  
   onCustomRangeSubmit(): void {
-    debugger
     if (this.startTime && this.endTime) {
       this.fetchLogs();
     } else {
