@@ -4,6 +4,7 @@ import { NgToastService } from 'ng-angular-popup';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { SignalRService } from '../../services/signal-r.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-conversation-history',
@@ -26,9 +27,12 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   isEditing: boolean = false;
   editedMessageContent: string = '';
 
+  loggedInUserName: string = '';
+
   constructor(private messageService: MessageService,
     private toast: NgToastService,
     private fb: FormBuilder,
+    private authService: AuthService,
     private signalRService: SignalRService) { }
 
   ngOnInit() {
@@ -41,28 +45,29 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       this.fetchConversationHistory(this.userId);
     }
 
+    this.authService.getUsername().subscribe((username) => {
+      console.log(username);
+      this.loggedInUserName = username;
+    });
+
     // Subscribe to real-time send
-    this.signalRService.receiveMessage$().subscribe((data: any) => {
-      const existingMessage = this.conversationHistory.find((m: any) => m.messageId === data.messageId);
-      if (!existingMessage) {
-        this.conversationHistory.push(data);
-        this.scrollToBottom();
-      }
+    this.signalRService.receiveNewMessage$().subscribe((data: any) => {
+      this.fetchConversationHistory(this.userId);
+      
 
     });
 
     // Subscribe to real-time edits
     this.signalRService.receiveEditedMessage$().subscribe((data: any) => {
-      const editedMessage = this.conversationHistory.find((m: any) => m.messageId === data.messageId);
-      if (editedMessage) {
-        editedMessage.content = data.content;
-      }
+      this.fetchConversationHistory(this.userId);
     });
 
     // Subscribe to real-time deletions
     this.signalRService.receiveDeletedMessage$().subscribe((messageId: any) => {
-      this.conversationHistory = this.conversationHistory.filter((m: any) => m.messageId !== messageId);
+      this.fetchConversationHistory(this.userId);
     });
+
+    this.scrollToBottom();
   }
 
   // Method to fetch conversation history based on the userId
@@ -138,13 +143,9 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     // Call the message service to send the message
     this.messageService.sendMessage(message).subscribe({
       next: (res) => {
-        const existingMessage = this.conversationHistory.find((m: any) => m.messageId === res.data.messageId);
-        if (!existingMessage) {
-          this.conversationHistory.push(res.data);
-          this.scrollToBottom();
-        }
+        this.fetchConversationHistory(this.userId);
+        this.scrollToBottom();
         this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
-        this.signalRService.sendMessage$(res.data);
         this.newMessageContent = '';
         this.scrollToBottom();
       }
@@ -174,24 +175,19 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     this.isEditing = true;
     this.scrollToBottom();
   }
-  // Function to accept the edited message
   editMessage(message: any) {
     this.messageService.updateMessage(message.messageId, message.content).subscribe({
       next: (res) => {
         this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
 
-        this.signalRService.editMessage$(message.messageId, message.content);
-        const editedMessage = this.conversationHistory.find((m: any) => m.messageId === message.messageId);
-        if (editedMessage) {
-          this.conversationHistory.content = message.content;
-        }
+        this.fetchConversationHistory(this.userId);
+        this.scrollToBottom();
         this.isContextMenuVisible = false;
         this.isEditing = false;
       }
     });
   }
 
-  // Function to cancel the edit and discard changes
   cancelEdit() {
     this.isContextMenuVisible = false;
     this.isEditing = false;
@@ -207,23 +203,19 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       cancelButtonText: 'No, keep it',
     }).then((result) => {
       if (result.value) {
-        // User confirmed deletion
         this.deleteMessage(messageId)
         Swal.fire('Deleted!', 'Your item has been deleted.', 'success');
       } else if (result.dismiss === Swal.DismissReason.cancel) {
-        // User canceled deletion
         Swal.fire('Cancelled', 'Your item is safe :)', 'error');
       }
     });
   }
 
+  // Delete message
   deleteMessage(messageId: number) {
-    // Make an API request to delete the message on the server
     this.messageService.deleteMessage(messageId).subscribe({
       next: (res) => {
-        // Remove the deleted message from the conversation history
-        this.conversationHistory = this.conversationHistory.filter((m: any) => m.messageId !== messageId);
-        this.signalRService.deleteMessage$(messageId);
+        this.fetchConversationHistory(this.userId);
         this.isContextMenuVisible = false;
         this.isEditing = false;
         Swal.fire('Deleted!', res.message, 'success');

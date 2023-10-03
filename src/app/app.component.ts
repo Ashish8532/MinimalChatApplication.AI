@@ -1,21 +1,25 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { AuthService } from './pages/services/auth.service';
 import { Router } from '@angular/router';
 import { NgToastService } from 'ng-angular-popup';
+import GetToken from './shared/helpers/get-token';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-  title = 'MinimalChatApplication.AI';
+export class AppComponent implements OnInit {
+  constructor(private authService: AuthService) {}
 
-  constructor(private formBuilder: FormBuilder, 
-    private router: Router,
-    private toast: NgToastService,
-   ) { }
+  ngOnInit(): void {
+    // Check for the presence of a token in localStorage
+    const token = GetToken.getToken();
 
-  
+    if (token) {
+      // If a token is present, set it in the AuthService to update the username
+      this.authService.storeToken(token);
+    }
+  }
 }
