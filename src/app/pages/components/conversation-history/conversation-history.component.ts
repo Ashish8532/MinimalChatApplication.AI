@@ -3,6 +3,7 @@ import { MessageService } from '../../services/message.service';
 import { NgToastService } from 'ng-angular-popup';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { SignalRService } from '../../services/signal-r.service';
 
 @Component({
   selector: 'app-conversation-history',
@@ -27,7 +28,8 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
 
   constructor(private messageService: MessageService,
     private toast: NgToastService,
-    private fb: FormBuilder) { }
+    private fb: FormBuilder,
+    private signalRService: SignalRService) { }
 
   ngOnInit() {
     this.editForm = this.fb.group({
@@ -38,6 +40,29 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       // Fetch the conversation history for the specified user
       this.fetchConversationHistory(this.userId);
     }
+
+    // Subscribe to real-time send
+    this.signalRService.receiveMessage$().subscribe((data: any) => {
+      const existingMessage = this.conversationHistory.find((m: any) => m.messageId === data.messageId);
+      if (!existingMessage) {
+        this.conversationHistory.push(data);
+        this.scrollToBottom();
+      }
+
+    });
+
+    // Subscribe to real-time edits
+    this.signalRService.receiveEditedMessage$().subscribe((data: any) => {
+      const editedMessage = this.conversationHistory.find((m: any) => m.messageId === data.messageId);
+      if (editedMessage) {
+        editedMessage.content = data.content;
+      }
+    });
+
+    // Subscribe to real-time deletions
+    this.signalRService.receiveDeletedMessage$().subscribe((messageId: any) => {
+      this.conversationHistory = this.conversationHistory.filter((m: any) => m.messageId !== messageId);
+    });
   }
 
   // Method to fetch conversation history based on the userId
@@ -119,6 +144,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
           this.scrollToBottom();
         }
         this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
+        this.signalRService.sendMessage$(res.data);
         this.newMessageContent = '';
         this.scrollToBottom();
       }
@@ -154,6 +180,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       next: (res) => {
         this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
 
+        this.signalRService.editMessage$(message.messageId, message.content);
         const editedMessage = this.conversationHistory.find((m: any) => m.messageId === message.messageId);
         if (editedMessage) {
           this.conversationHistory.content = message.content;
@@ -196,6 +223,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       next: (res) => {
         // Remove the deleted message from the conversation history
         this.conversationHistory = this.conversationHistory.filter((m: any) => m.messageId !== messageId);
+        this.signalRService.deleteMessage$(messageId);
         this.isContextMenuVisible = false;
         this.isEditing = false;
         Swal.fire('Deleted!', res.message, 'success');
