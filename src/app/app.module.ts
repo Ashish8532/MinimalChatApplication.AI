@@ -18,6 +18,7 @@ import { DatePipe } from '@angular/common';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { GoogleLoginProvider, GoogleSigninButtonModule, SocialAuthServiceConfig, SocialLoginModule } from '@abacritt/angularx-social-login';
 import { TokenInterceptor } from './shared/Interceptor/token.interceptor';
+import { HomeComponent } from './pages/components/home/home.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { TokenInterceptor } from './shared/Interceptor/token.interceptor';
     ConversationHistoryComponent,
     ChatComponent,
     RequestLogComponent,
+    HomeComponent,
   ],
   imports: [
     BrowserModule,

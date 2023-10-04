@@ -70,6 +70,7 @@ export class AuthService {
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 
+  
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
@@ -77,11 +78,11 @@ export class AuthService {
 
   logOut() {
     localStorage.clear();
-    localStorage.removeItem('token');
-    this.user = null;
     this.socialAuthService.signOut();
+    this.user = null;
     this.router.navigate(['login']);
   }
+
 
   loginWithGoogle(): void {
     this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID);

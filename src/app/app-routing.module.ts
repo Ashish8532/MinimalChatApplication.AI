@@ -7,10 +7,12 @@ import { ChatComponent } from './pages/components/chat/chat.component';
 import { authGuard } from './pages/guard/auth.guard';
 import { RequestLogComponent } from './pages/components/request-log/request-log.component';
 import { loggedInAuthGuard } from './pages/guard/logged-in-auth.guard';
+import { HomeComponent } from './pages/components/home/home.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path:'', component: LoginComponent, canActivate:[loggedInAuthGuard] },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path:'', component: HomeComponent, canActivate:[loggedInAuthGuard] },
+  { path: 'home', component: HomeComponent, canActivate:[loggedInAuthGuard] },
   { path: 'register', component: RegisterComponent, canActivate:[loggedInAuthGuard] },
   { path: 'login', component: LoginComponent, canActivate:[loggedInAuthGuard] },
   {

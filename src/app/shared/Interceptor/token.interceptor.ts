@@ -20,7 +20,6 @@ export class TokenInterceptor implements HttpInterceptor {
     private router: Router) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    debugger
     const authToken = GetToken.getToken();
 
     if(authToken)
@@ -32,14 +31,16 @@ export class TokenInterceptor implements HttpInterceptor {
       })
     }
     return next.handle(request).pipe(
-      catchError((err:any) => {
-        if(err instanceof HttpErrorResponse) {
-          if(err.status === 401) {
-            this.toast.warning({detail:"Warning", summary:"Token is expired, Please Login again!"});
-            this.router.navigate(['login']);
-          }
+      catchError(error => {
+        if(error instanceof HttpErrorResponse) {
+          if (error.status === 401) {
+          // Redirect to login if token expired
+          this.toast.warning({detail:"Warning", summary:"Token is expired, Please Login again!"});
+          this.authService.logOut();
+          return throwError(() => error);
         }
-        return throwError(() => new Error("Some other error occured"));
+        }
+        return throwError(() => error);
       })
     );
   }
