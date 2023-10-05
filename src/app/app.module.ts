@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { RegisterComponent } from './pages/components/register/register.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgToastModule } from 'ng-angular-popup';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './pages/components/login/login.component';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { UserListComponent } from './pages/components/user-list/user-list.component';
@@ -17,6 +17,8 @@ import { DataTablesModule } from 'angular-datatables';
 import { DatePipe } from '@angular/common';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { GoogleLoginProvider, GoogleSigninButtonModule, SocialAuthServiceConfig, SocialLoginModule } from '@abacritt/angularx-social-login';
+import { TokenInterceptor } from './shared/Interceptor/token.interceptor';
+import { HomeComponent } from './pages/components/home/home.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +30,7 @@ import { GoogleLoginProvider, GoogleSigninButtonModule, SocialAuthServiceConfig,
     ConversationHistoryComponent,
     ChatComponent,
     RequestLogComponent,
+    HomeComponent,
   ],
   imports: [
     BrowserModule,
@@ -42,6 +45,11 @@ import { GoogleLoginProvider, GoogleSigninButtonModule, SocialAuthServiceConfig,
     GoogleSigninButtonModule
   ],
   providers: [
+    { 
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor, 
+      multi: true 
+    },
     DatePipe,
     {
       provide: 'SocialAuthServiceConfig',

@@ -46,7 +46,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     }
 
     this.authService.getUsername().subscribe((username) => {
-      console.log(username);
       this.loggedInUserName = username;
     });
 
@@ -98,12 +97,13 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     const container = this.scrollContainer.nativeElement;
     const scrollPosition = container.scrollTop;
     const isNearTop = scrollPosition < 20;
-
-    if (isNearTop && !this.isLoadingMoreMessages) {
+  
+    if (isNearTop && !this.isLoadingMoreMessages && this.conversationHistory.length > 0) {
       const oldestMessageTimestamp = this.conversationHistory[0].timestamp;
       this.fetchMoreConversationHistory(this.userId, new Date(oldestMessageTimestamp));
     }
   }
+  
 
   scrollToBottom() {
     setTimeout(() => {

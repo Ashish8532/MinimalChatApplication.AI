@@ -43,6 +43,14 @@ export class ChatComponent {
           this.searchResults = res.data;
           this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
           this.showSearchResult = true;
+        },
+        error: (err) => {
+          if (err.status === 401 || err.status === 400 || err.status === 404 || err.status === 500) {
+            // Display the error message to the user
+            this.toast.error({ detail: "ERROR", summary: err.error.message, duration: 3000 });
+          } else {
+            this.toast.error({ detail: "ERROR", summary: "Something went wrong while processing the request.", duration: 3000 });
+          }
         }
       });
   }

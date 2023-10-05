@@ -26,7 +26,7 @@ export class RequestLogComponent implements OnInit{
   showUsername: boolean = true;
 
   currentPage: number = 1;
-  itemsPerPage: number = 5; // Set the number of items per page
+  itemsPerPage: number = 10; // Set the number of items per page
   totalItems: number = 0;
   constructor(
     private logService: RequestLogService,
@@ -79,8 +79,6 @@ export class RequestLogComponent implements OnInit{
     if (this.startTime && this.endTime) {
       this.logService.getLogs(this.startTime, this.endTime).subscribe({
         next: (logs: any) => {
-          console.log(logs.data);
-
           this.totalItems = logs.data.length;
 
           const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -88,20 +86,12 @@ export class RequestLogComponent implements OnInit{
 
           this.logs = logs.data.slice(startIndex, endIndex);
           this.toast.success({detail:"SUCCESS", summary:logs.message, duration:3000});
-        },
-        error: (err: any) => {
-          if (err.status === 401 || err.status === 400 || err.status === 404 || err.status === 500) {
-            // Display the error message to the user
-            this.toast.error({detail:"ERROR", summary:err.error.message, duration:3000});
-          } else {
-            this.toast.error({detail:"ERROR", summary: "Something went wrong while processing the request.", duration:3000});
-          }
         }
       });
     }
   }
+  
   onCustomRangeSubmit(): void {
-    debugger
     if (this.startTime && this.endTime) {
       this.fetchLogs();
     } else {

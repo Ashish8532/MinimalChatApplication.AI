@@ -64,7 +64,7 @@
       <div class="user-avatar fw-bold">
         {{ getInitials(loggedInUserName) }}
       </div>
-      <input type="text" [(ngModel)]="newMessageContent" class="form-control form-control-lg border-bottom bg-light"
+      <input type="text" [(ngModel)]="newMessageContent" class="form-control form-control-lg border-bottom bg-white"
         placeholder="Send message. . ." style="box-shadow: none; border: none;" (keydown.enter)="sendMessage()">
       <a class="ms-3" (click)="sendMessage()"><i class="fa fa-paper-plane"></i></a>
     </div>

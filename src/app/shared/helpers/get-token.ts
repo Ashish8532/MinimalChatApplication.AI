@@ -6,18 +6,14 @@ export default class GetToken {
         return localStorage.getItem('token');
       }
     
-      // Add JWT token to headers
-    static getHeaders(): HttpHeaders {
-        const token = this.getToken();
-        return new HttpHeaders({
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        });
-      }
-
       static decodeToken(token: string): any {
         const decodedToken = jwtDecode(token);
         return decodedToken;
       }
+
+      static getRefreshToken(): string | null {
+        return localStorage.getItem('refreshToken');
+      }
+   
 }
     

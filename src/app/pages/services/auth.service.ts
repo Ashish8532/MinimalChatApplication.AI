@@ -6,6 +6,7 @@ import jwtDecode from 'jwt-decode';
 import { NgToastService } from 'ng-angular-popup';
 import { BehaviorSubject, Observable, Subject, catchError, throwError } from 'rxjs';
 import GetToken from 'src/app/shared/helpers/get-token';
+import { TokenApiModel } from 'src/app/shared/models/TokenApiModel';
 
 @Injectable({
   providedIn: 'root'
@@ -59,6 +60,10 @@ export class AuthService {
     this.usernameSubject.next(username);
   }
 
+  storeRefreshToken(tokenValue: string) {
+    localStorage.setItem('refreshToken', tokenValue);
+  }
+
   getUsername(): Observable<string> {
     return this.usernameSubject.asObservable();
   }
@@ -70,6 +75,7 @@ export class AuthService {
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 
+  
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
@@ -77,11 +83,13 @@ export class AuthService {
 
   logOut() {
     localStorage.clear();
-    localStorage.removeItem('token');
-    this.user = null;
-    this.socialAuthService.signOut();
+    if (this.user) {
+      this.socialAuthService.signOut();
+      this.user = null;
+  }
     this.router.navigate(['login']);
   }
+
 
   loginWithGoogle(): void {
     this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID);
@@ -92,5 +100,11 @@ export class AuthService {
     const url = `${this.baseUrl}/google-signin?idToken=${idToken}`;
     return this.http.post(url, null).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
+  }
+
+
+  refreshToken(tokenApiModel: TokenApiModel) {
+    const url = `${this.baseUrl}/refresh-token`;
+    return this.http.post<any>(url, tokenApiModel);
   }
 }
