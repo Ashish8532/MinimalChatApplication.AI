@@ -6,11 +6,12 @@ import {
   HttpInterceptor,
   HttpErrorResponse
 } from '@angular/common/http';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from 'src/app/pages/services/auth.service';
 import GetToken from '../helpers/get-token';
 import { NgToastService } from 'ng-angular-popup';
 import { Router } from '@angular/router';
+import { TokenApiModel } from '../models/TokenApiModel';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
@@ -34,14 +35,35 @@ export class TokenInterceptor implements HttpInterceptor {
       catchError(error => {
         if(error instanceof HttpErrorResponse) {
           if (error.status === 401) {
-          // Redirect to login if token expired
-          this.toast.warning({detail:"Warning", summary:"Token is expired, Please Login again!"});
-          this.authService.logOut();
-          return throwError(() => error);
+          return this.handleUnAuthorizedError(request, next)
         }
         }
         return throwError(() => error);
       })
     );
+  }
+
+  handleUnAuthorizedError(req: HttpRequest<any>, next: HttpHandler) { 
+    let tokenApiModel = new TokenApiModel();
+    tokenApiModel.accessToken = GetToken.getToken()!;
+    tokenApiModel.refreshToken = GetToken.getRefreshToken()!;
+
+    return this.authService.refreshToken(tokenApiModel).pipe(
+      switchMap((data: TokenApiModel)=> {    
+        this.authService.storeRefreshToken(data.refreshToken);
+        this.authService.storeToken(data.accessToken);
+        req= req.clone({    
+          setHeaders: {
+            Authorization: `Bearer ${data.accessToken}`,
+          }, // "Bearer "+myToken
+        })
+        return next.handle(req);
+      }),
+      catchError((err)=> {
+        this.toast.warning({detail: 'Warning', summary: 'Token is expired, Please Login again', duration: 3000 });
+        this.router.navigate(['login']);
+        return throwError(() => err);
+      })
+    )
   }
 }

@@ -50,7 +50,6 @@ export class MessageService {
 
   // Send new Message
   sendMessage(message: { receiverId: string, content: string }): Observable<any> {
-    // const headers = GetToken.getHeaders();
     return this.http.post(this.apiUrl, message, {}).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
@@ -60,7 +59,6 @@ export class MessageService {
     const updatedMessage = {
       content: newContent
     };
-    // const headers = GetToken.getHeaders();
     const url = `${this.apiUrl}/${messageId}`;
     return this.http.put(url, updatedMessage, {}).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
@@ -68,7 +66,6 @@ export class MessageService {
 
   // Delete Message
   deleteMessage(messageId: number): Observable<any> {
-    // const headers = GetToken.getHeaders();
     const deleteUrl = `${this.apiUrl}/${messageId}`; 
     return this.http.delete(deleteUrl, {});
   }
@@ -79,7 +76,6 @@ export class MessageService {
     let params = new HttpParams()
       .set('query', query);
     
-    // const headers = GetToken.getHeaders();
     const url = `${this.searchApi}/search`;
     return this.http.get(url, { params}).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));

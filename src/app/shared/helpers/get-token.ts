@@ -10,6 +10,10 @@ export default class GetToken {
         const decodedToken = jwtDecode(token);
         return decodedToken;
       }
+
+      static getRefreshToken(): string | null {
+        return localStorage.getItem('refreshToken');
+      }
    
 }
     

@@ -66,7 +66,9 @@ export class LoginComponent {
         {
         next: (res) => {
           this.loginForm.reset();
-          this.authService.storeToken(res.jwtToken);
+          localStorage.clear();
+          this.authService.storeToken(res.accessToken);
+          this.authService.storeRefreshToken(res.refreshToken)
           this.toast.success({detail:"SUCCESS", summary:res.message, duration:3000});
           this.router.navigate(['chat']);
         }
