@@ -1,5 +1,5 @@
 import { GoogleLoginProvider, SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import jwtDecode from 'jwt-decode';
@@ -103,8 +103,11 @@ export class AuthService {
   }
 
 
-  refreshToken(tokenApiModel: TokenApiModel) {
+  refreshToken(tokenApiModel: TokenApiModel): Observable<any> {
+    let params = new HttpParams()
+      .set('accessToken', tokenApiModel.accessToken)
+      .set('refreshToken', tokenApiModel.refreshToken);
     const url = `${this.baseUrl}/refresh-token`;
-    return this.http.post<any>(url, tokenApiModel);
+    return this.http.post(url, null, { params: params });
   }
 }

@@ -16,6 +16,8 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   @Input() userName: string = '';
   conversationHistory: any = []; // Initialize conversationHistory as an empty array
   isLoadingMoreMessages = false;
+  lastScrollTop: number = 0;
+
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
 
   newMessageContent: string = '';
@@ -95,13 +97,13 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
 
   onScroll() {
     const container = this.scrollContainer.nativeElement;
-    const scrollPosition = container.scrollTop;
-    const isNearTop = scrollPosition < 20;
-  
-    if (isNearTop && !this.isLoadingMoreMessages && this.conversationHistory.length > 0) {
+    const isScrollingUp = container.scrollTop < this.lastScrollTop;
+
+    if (isScrollingUp && !this.isLoadingMoreMessages && container.scrollTop < 20 && this.conversationHistory.length > 0) {
       const oldestMessageTimestamp = this.conversationHistory[0].timestamp;
       this.fetchMoreConversationHistory(this.userId, new Date(oldestMessageTimestamp));
     }
+    this.lastScrollTop = container.scrollTop;
   }
   
 

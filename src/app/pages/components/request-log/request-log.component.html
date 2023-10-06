@@ -88,8 +88,12 @@
         </table>
         <!-- Add this code below the table -->
         <div class="d-flex justify-content-center">
-          <pagination [totalItems]="totalItems" [(ngModel)]="currentPage" [itemsPerPage]="itemsPerPage" (pageChanged)="onPageChange($event)"></pagination>
-
+          <pagination [totalItems]="totalItems" 
+            [(ngModel)]="currentPage" 
+            [itemsPerPage]="itemsPerPage" 
+            (pageChanged)="onPageChange($event)" 
+            [maxSize]="5">
+          </pagination>
         </div>
       </div>
       <!-- Display a message if there are no logs -->
