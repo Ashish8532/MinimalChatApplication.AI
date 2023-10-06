@@ -72,7 +72,6 @@ export class MessageService {
 
 
   searchConversations(query: string): Observable<any> {
-    debugger
     let params = new HttpParams()
       .set('query', query);
     

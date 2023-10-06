@@ -30,14 +30,13 @@ export class LoginComponent {
     private socialAuthService: SocialAuthService) {
       this.user = null;
       this.socialAuthService.authState.subscribe((user: SocialUser) => {
-        debugger
-        console.log(user);
         if (user) {
-          debugger
           this.authService.googleSignIn(user.idToken.toString()).subscribe(
             {
               next: (res) => {
-                this.authService.storeToken(res.jwtToken);
+                localStorage.clear();
+                this.authService.storeToken(res.accessToken);
+                this.authService.storeRefreshToken(res.refreshToken);
                 this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
                 this.router.navigate(['chat']);
               }
@@ -68,7 +67,7 @@ export class LoginComponent {
           this.loginForm.reset();
           localStorage.clear();
           this.authService.storeToken(res.accessToken);
-          this.authService.storeRefreshToken(res.refreshToken)
+          this.authService.storeRefreshToken(res.refreshToken);
           this.toast.success({detail:"SUCCESS", summary:res.message, duration:3000});
           this.router.navigate(['chat']);
         }
