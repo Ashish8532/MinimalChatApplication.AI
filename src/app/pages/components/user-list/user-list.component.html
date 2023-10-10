@@ -14,7 +14,8 @@
           </div>
           <div class="pt-1">
             <p class="small text-muted mb-1">Just now</p>
-            <span class="text-success float-end"><i class="fa fa-check" aria-hidden="true"></i></span>
+            <span *ngIf="user.messageCount > 0" class="badge bg-danger rounded-pill float-end">{{user.messageCount}}</span>
+            <span *ngIf="user.messageCount <= 0" class="text-success float-end"><i class="fa fa-check" aria-hidden="true"></i></span>
           </div>
         </a>
       </li>

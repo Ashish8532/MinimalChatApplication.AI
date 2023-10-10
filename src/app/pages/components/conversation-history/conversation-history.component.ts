@@ -54,8 +54,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     // Subscribe to real-time send
     this.signalRService.receiveNewMessage$().subscribe((data: any) => {
       this.fetchConversationHistory(this.userId);
-      
-
     });
 
     // Subscribe to real-time edits
@@ -75,7 +73,8 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   fetchConversationHistory(userId: string) {
     this.messageService.getConversationHistory(userId).subscribe({
       next: (res) => {
-        this.conversationHistory = res.data.reverse(); // Reverse the order for display
+        this.conversationHistory = res.data.reverse(); 
+        console.log("Is Active", res.isActive);
         this.scrollToBottom();
       }
     });

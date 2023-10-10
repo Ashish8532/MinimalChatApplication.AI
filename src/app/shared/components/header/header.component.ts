@@ -22,6 +22,11 @@ export class HeaderComponent implements OnInit {
   }
 
   logout() {
+    this.authService.updateUserStatus().subscribe(
+      (response) => {
+        console.log(response);
+      }
+    );
     this.authService.logOut();
   }
 

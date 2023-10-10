@@ -79,4 +79,14 @@ export class MessageService {
     return this.http.get(url, { params}).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
+
+
+  updateChatStatus(currentUserId: string, previousUserId?: string): Observable<any> {
+    debugger
+    let params = new HttpParams()
+      .set('currentUserId', currentUserId)
+      .set('previousUserId', previousUserId!);
+
+    return this.http.post(`${this.apiUrl}/chat-status`, null, { params: params});
+  }
 }

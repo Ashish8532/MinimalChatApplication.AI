@@ -110,4 +110,11 @@ export class AuthService {
     const url = `${this.baseUrl}/refresh-token`;
     return this.http.post(url, null, { params: params });
   }
+
+  updateUserStatus(userId?: string, previousUserId?: string): Observable<any> {
+    let params = new HttpParams()
+      .set('userId', userId!)
+      .set('previousUserId', previousUserId!);
+    return this.http.post(`${this.baseUrl}/status`, null, { params: params});
+  }
 }
