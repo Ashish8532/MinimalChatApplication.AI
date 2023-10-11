@@ -31,6 +31,8 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
 
   loggedInUserName: string = '';
 
+  IsActive: boolean = false;
+
   constructor(private messageService: MessageService,
     private toast: NgToastService,
     private fb: FormBuilder,
@@ -54,8 +56,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     // Subscribe to real-time send
     this.signalRService.receiveNewMessage$().subscribe((data: any) => {
       this.fetchConversationHistory(this.userId);
-      
-
     });
 
     // Subscribe to real-time edits
@@ -68,6 +68,11 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       this.fetchConversationHistory(this.userId);
     });
 
+    this.signalRService.receiveUpdatedStatus$().subscribe((userStatus: boolean) => {
+      this.IsActive = userStatus;
+    });
+
+
     this.scrollToBottom();
   }
 
@@ -75,7 +80,8 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   fetchConversationHistory(userId: string) {
     this.messageService.getConversationHistory(userId).subscribe({
       next: (res) => {
-        this.conversationHistory = res.data.reverse(); // Reverse the order for display
+        this.conversationHistory = res.data.reverse(); 
+        this.IsActive = res.isActive;
         this.scrollToBottom();
       }
     });
@@ -88,6 +94,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
         const olderMessages = res.data.reverse(); // Reverse to maintain chronological order
         this.conversationHistory = olderMessages.concat(this.conversationHistory);
         this.isLoadingMoreMessages = false;
+        this.IsActive = res.IsActive;
       },
       error: (err) => {
         this.isLoadingMoreMessages = false;

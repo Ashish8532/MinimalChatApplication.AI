@@ -52,4 +52,20 @@ export class SignalRService {
       });
     });
   }
+
+  receiveUpdatedStatus$ = (): Observable<boolean> => {
+    return new Observable(observer => {
+      this.hubConnection.on('UpdateStatus', (userStatus: boolean) => {
+        observer.next(userStatus);
+      });
+    });
+  }
+
+  receiveUpdatedMessageCount$ = (): Observable<{ messageCount: number, isRead: boolean, userId: string}> => {
+    return new Observable(observer => {
+      this.hubConnection.on('UpdateMessageCount', (messageCount: number, isRead: boolean, userId: string) => {
+        observer.next({ messageCount, isRead, userId});
+      });
+    });
+  }
 }

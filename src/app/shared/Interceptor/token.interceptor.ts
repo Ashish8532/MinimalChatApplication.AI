@@ -35,8 +35,8 @@ export class TokenInterceptor implements HttpInterceptor {
       catchError(error => {
         if(error instanceof HttpErrorResponse) {
           if (error.status === 401) {
-          return this.handleUnAuthorizedError(request, next)
-        }
+            return this.handleUnAuthorizedError(request, next)
+          }
         }
         return throwError(() => error);
       })
