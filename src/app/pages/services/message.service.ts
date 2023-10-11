@@ -82,7 +82,6 @@ export class MessageService {
 
 
   updateChatStatus(currentUserId: string, previousUserId?: string): Observable<any> {
-    debugger
     let params = new HttpParams()
       .set('currentUserId', currentUserId)
       .set('previousUserId', previousUserId!);

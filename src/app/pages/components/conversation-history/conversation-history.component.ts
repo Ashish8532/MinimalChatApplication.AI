@@ -31,6 +31,8 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
 
   loggedInUserName: string = '';
 
+  IsActive: boolean = false;
+
   constructor(private messageService: MessageService,
     private toast: NgToastService,
     private fb: FormBuilder,
@@ -66,6 +68,11 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       this.fetchConversationHistory(this.userId);
     });
 
+    this.signalRService.receiveUpdatedStatus$().subscribe((userStatus: boolean) => {
+      this.IsActive = userStatus;
+    });
+
+
     this.scrollToBottom();
   }
 
@@ -74,7 +81,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     this.messageService.getConversationHistory(userId).subscribe({
       next: (res) => {
         this.conversationHistory = res.data.reverse(); 
-        console.log("Is Active", res.isActive);
+        this.IsActive = res.isActive;
         this.scrollToBottom();
       }
     });
@@ -87,6 +94,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
         const olderMessages = res.data.reverse(); // Reverse to maintain chronological order
         this.conversationHistory = olderMessages.concat(this.conversationHistory);
         this.isLoadingMoreMessages = false;
+        this.IsActive = res.IsActive;
       },
       error: (err) => {
         this.isLoadingMoreMessages = false;

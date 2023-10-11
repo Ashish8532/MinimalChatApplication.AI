@@ -36,12 +36,16 @@ export class UserListComponent implements OnInit, OnChanges {
 
     this.signalRService.receiveUpdatedMessageCount$().subscribe({
       next: (data: { messageCount: number, isRead: boolean, userId: string }) => {
+        console.log(data);
         const userToUpdate = this.users.find(user => user.userId === data.userId);
       if (userToUpdate) {
         userToUpdate.messageCount = data.messageCount;
         userToUpdate.isRead = data.isRead;
         this.cdr.detectChanges();
-        this.toast.success({detail:"SUCCESS", summary:"You have "+data.messageCount+" unread message from "+userToUpdate.name, duration:3000});
+        if(data.messageCount > 0)
+        {
+          this.toast.success({detail:"SUCCESS", summary:"You have "+data.messageCount+" unread message from "+userToUpdate.name, duration:3000});
+        }
       }
       }
     });
@@ -57,12 +61,9 @@ export class UserListComponent implements OnInit, OnChanges {
   }
 
   onUserClick(userId: string, userName: string) {
-    debugger
     const userSelection = { userId, userName,  };
     this.previousUserId = this.selectedUserId;
     this.selectedUserId = userId; // Set the selected user ID
-    this.userSelected.emit(userSelection); 
-
     this.messageService.updateChatStatus(userId, this.previousUserId!).subscribe(
       (response) => {
         // Handle the API response if needed
@@ -73,6 +74,7 @@ export class UserListComponent implements OnInit, OnChanges {
         console.error(error);
       }
     );
+    this.userSelected.emit(userSelection); 
   }
 
   getInitials(name: string): string {
