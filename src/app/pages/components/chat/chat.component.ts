@@ -16,6 +16,8 @@ export class ChatComponent {
   searchResults: any[] = [];
   showSearchResult: boolean = false;
 
+  notificationMessage: string | null = null;
+
   constructor(private route: ActivatedRoute, 
     private router: Router,
     private messageService: MessageService,
@@ -59,5 +61,18 @@ export class ChatComponent {
     this.showSearchResult = false;
     this.searchQuery = ''; // Clear the search query
     this.searchResults = []; // Clear the search results
+  }
+
+
+  onShowNotification(message: string) {
+    this.notificationMessage = message;
+    // Optionally, set a timer to clear the notification after a few seconds
+    setTimeout(() => {
+      this.notificationMessage = null;
+    }, 5000); // 5000 milliseconds (adjust as needed)
+  }
+
+  onCloseNotification() {
+    this.notificationMessage = null;
   }
 }

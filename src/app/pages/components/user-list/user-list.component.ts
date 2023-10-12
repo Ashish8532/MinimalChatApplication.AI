@@ -18,6 +18,9 @@ export class UserListComponent implements OnInit, OnChanges {
   selectedUserId: string | null = null;
   previousUserId: string | null = null;
   predefinedColors: string[] = ['red', 'blue', 'orange', 'green', 'purple', 'teal'];
+
+  @Output() showNotification = new EventEmitter<string>();
+
   constructor(private userService: UserService, 
     private authService: AuthService,
     private router: Router,
@@ -44,7 +47,8 @@ export class UserListComponent implements OnInit, OnChanges {
         this.cdr.detectChanges();
         if(data.messageCount > 0)
         {
-          this.toast.success({detail:"SUCCESS", summary:"You have "+data.messageCount+" unread message from "+userToUpdate.name, duration:3000});
+          const notificationMessage = `You have ${data.messageCount} unread message from ${userToUpdate.name}`;
+          this.showNotification.emit(notificationMessage);
         }
       }
       }

@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { SignalRService } from '../../services/signal-r.service';
 import { AuthService } from '../../services/auth.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-conversation-history',
@@ -69,7 +70,11 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     });
 
     this.signalRService.receiveUpdatedStatus$().subscribe((userStatus: boolean) => {
-      this.IsActive = userStatus;
+      const conversationToUpdate = this.conversationHistory.find((conversation: { receiverId: string }) => conversation.receiverId === this.userId);
+
+      if (conversationToUpdate) {
+        this.IsActive = userStatus;
+      }
     });
 
 
@@ -102,6 +107,27 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     });
   }
 
+  formatDate(timestamp: string | null): string {
+    if (timestamp === null) {
+      // Handle the case where timestamp is null
+      return '';
+    }
+
+    const datePipe = new DatePipe('en-US');
+    return datePipe.transform(timestamp, 'dd MMMM yyyy') || '';
+  }
+
+  formatTime(timestamp: string | null): string {
+    if (timestamp === null) {
+      // Handle the case where timestamp is null
+      return '';
+    }
+  
+    const datePipe = new DatePipe('en-US');
+    return datePipe.transform(timestamp, 'shortTime') || '';
+  }
+
+  
   onScroll() {
     const container = this.scrollContainer.nativeElement;
     const isScrollingUp = container.scrollTop < this.lastScrollTop;

@@ -6,23 +6,32 @@
     </div>
     <div class="user-info">
       <p class="fw-bold mb-0">{{ userName }}</p>
-      <small *ngIf="IsActive">online</small>
-      <small *ngIf="!IsActive">offline</small>
+      <small class="h6 text-danger fw-bold" *ngIf="IsActive">online</small>
+      <small class="h6 text-danger fw-bold" *ngIf="!IsActive">offline</small>
     </div>
   </div>
   <div class="p-2 rounded">
 
     <div class="scroll-container pt-3 pe-3" data-mdb-perfect-scrollbar="true" style="position: relative; height: 330px"
       (scroll)="onScroll()" #scrollContainer>
-      <ng-container *ngFor="let message of conversationHistory">
+      <ng-container *ngFor="let message of conversationHistory; let i = index">
         <div [class.editing]="isEditing && message === selectedMessage"
           (contextmenu)="showContextMenu($event, message)">
+
+          <ng-container *ngIf="i === 0 || formatDate(conversationHistory[i - 1].timestamp) !== formatDate(message.timestamp)">
+            <div class="text-center mb-3">
+              <div class="date-cluster border d-inline-block">
+                {{ formatDate(message.timestamp) }}
+              </div>
+            </div>
+          </ng-container>
+
           <!-- Display the receiver's message -->
           <div class="d-flex flex-row justify-content-start" *ngIf="message.senderId === userId">
             <div>
               <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: rgba(57, 192, 237,.2);">{{
                 message.content }}</p>
-              <p class="small ms-3 mb-3 rounded-3 text-muted float-end">{{ message.timestamp | date }}</p>
+              <p class="small ms-3 mb-3 rounded-3 text-muted float-end">{{ formatTime(message.timestamp) }}</p>
             </div>
           </div>
 
@@ -41,7 +50,7 @@
                   <li (click)="confirmDelete(message.messageId)">Delete Message</li>
                 </ul>
               </div>
-              <p class="small me-3 mb-3 rounded-3 text-muted float-end">{{ message.timestamp | date }}</p>
+              <p class="small me-3 mb-3 rounded-3 text-muted float-end">{{ formatTime(message.timestamp)}}</p>
             </div>
           </div>
         </div>
