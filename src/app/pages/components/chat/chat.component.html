@@ -1,4 +1,11 @@
 <section style="min-height: 100vh;">
+
+  <!-- Notification Display -->
+  <div *ngIf="notificationMessage" class="notification">
+    <div class="notification-header"><i class="fa fa-bell text-danger"></i> Minimal Chat Notification</div>
+    <span>{{ notificationMessage }}</span>
+    <i class="close fa fa-times text-light" (click)="onCloseNotification()"></i>
+  </div>
     <div class="container">
   
       <div class="row">
@@ -39,7 +46,7 @@
                   
                   
 
-                  <app-user-list *ngIf="!showSearchResult" (userSelected)="onUserSelected($event)"></app-user-list>
+                  <app-user-list *ngIf="!showSearchResult" (userSelected)="onUserSelected($event)" (showNotification)="onShowNotification($event)"></app-user-list>
                   </div>
   
                 </div>
@@ -51,12 +58,9 @@
   
                 </div>
               </div>
-  
             </div>
           </div>
-  
         </div>
       </div>
-  
     </div>
   </section>
