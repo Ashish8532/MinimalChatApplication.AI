@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
 import { AuthService } from './pages/services/auth.service';
-import { Router } from '@angular/router';
-import { NgToastService } from 'ng-angular-popup';
 import GetToken from './shared/helpers/get-token';
 
 @Component({

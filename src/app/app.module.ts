@@ -62,7 +62,6 @@ import { HomeComponent } from './pages/components/home/home.component';
               '768783138443-c7isjgieo2e1e75f2scm44glt2cc2ca4.apps.googleusercontent.com' 
             ),
           },
-          // Other providers if needed...
         ],
       } as SocialAuthServiceConfig,
     },
