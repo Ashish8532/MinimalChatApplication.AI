@@ -3,17 +3,24 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { NgToastService } from 'ng-angular-popup';
 
+
+/**
+ * Custom Angular route guard to check if the user is authenticated before navigating to a route.
+ * @param route - The activated route snapshot.
+ * @param state - The router state snapshot.
+ * @returns `true` if the user is authenticated, otherwise redirects to the login page and returns `false`.
+ */
 export const authGuard: CanActivateFn = (route, state) => {
+  // Inject required services
   const authService = inject(AuthService);
   const router = inject(Router);
   const toast = inject(NgToastService);
-  if(authService.isLoggedIn())
-  {
-
+  if (authService.isLoggedIn()) {
     return true;
   }
   else {
-    toast.error({ detail:"ERROR", summary:"Please Login First!"});
+    // Display error message and navigate to login page
+    toast.error({ detail: "ERROR", summary: "Please Login First!" });
     router.navigate(['login']);
     return false;
   }

@@ -17,7 +17,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate:[loggedInAuthGuard] },
   {
     path: 'chat', component: ChatComponent, children: [
-      { path: 'user/:userId', component: ConversationHistoryComponent }, // Add route with user parameter
+      { path: 'user/:userId', component: ConversationHistoryComponent }, 
     ], canActivate: [authGuard]
   },
   { path: 'logs', component: RequestLogComponent, canActivate: [authGuard] },

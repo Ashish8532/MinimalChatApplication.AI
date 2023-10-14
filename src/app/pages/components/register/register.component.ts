@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { NgToastService } from 'ng-angular-popup';
@@ -9,40 +9,72 @@ import ValidatePassword from 'src/app/shared/helpers/validate-password';
 import ValidateForm from 'src/app/shared/helpers/validate-forms';
 import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
 
+/**
+ * Component for user registration.
+ * - Manages the registration form and its validation.
+ * - Provides functionality to toggle password visibility.
+ * - Handles the user registration process and redirects upon success.
+ */
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
+  // Properties for password visibility toggle
   type: string = "password";
   isText: boolean = false;
-  eyeIcon: string = "fa-eye-slash"
-  registerForm!: FormGroup;
-  user!: SocialUser | null;
+  eyeIcon: string = "fa-eye-slash";
 
-  constructor(private formBuilder: FormBuilder, 
-    private authService: AuthService, 
+  // Reactive form for user registration
+  registerForm!: FormGroup;
+  user!: SocialUser | null; // User information obtained from social login
+
+  /**
+   * Constructor of the RegisterComponent class.
+   * - Initializes the component with the required services and dependencies.
+   * - Sets the initial value of the 'user' property to null.
+   * - Subscribes to changes in the social authentication state.
+   * - Handles Google sign-in events and redirects upon successful authentication.
+   * 
+   * @param formBuilder - An instance of the FormBuilder service for creating and managing forms.
+   * @param authService - An instance of the AuthService for user authentication operations.
+   * @param router - An instance of the Router for navigating between routes.
+   * @param toast - An instance of the NgToastService for displaying toast notifications.
+   * @param socialAuthService - An instance of the SocialAuthService for managing social logins.
+   */
+  constructor(private formBuilder: FormBuilder,
+    private authService: AuthService,
     private router: Router,
     private toast: NgToastService,
     private socialAuthService: SocialAuthService) {
-      this.user = null;
-      this.socialAuthService.authState.subscribe((user: SocialUser) => {
-        console.log(user);
-        if (user) {
-          this.authService.googleSignIn(user.idToken.toString()).subscribe(
-            {
-              next: (res) => {
-                this.authService.storeToken(res.jwtToken);
-                this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
-                this.router.navigate(['chat']);
-              }
-            })  
-        }
-        this.user = user;
-      });
-    }
+    this.user = null;
+    this.socialAuthService.authState.subscribe((user: SocialUser) => {
+      console.log(user);
+      if (user) {
+        this.authService.googleSignIn(user.idToken.toString()).subscribe(
+          {
+            next: (res) => {
+              this.authService.storeToken(res.jwtToken);
+              this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
+              this.router.navigate(['chat']);
+            }
+          })
+      }
+      this.user = user;
+    });
+  }
 
+  /**
+   * Angular lifecycle hook called after the component has been initialized.
+   * - Initializes the registration form using the Angular form builder.
+   * - Sets up form controls for name, email, and password with specified validators:
+   *   - Name: Required, pattern validation for alphabetical characters and spaces, minimum and maximum length, and no consecutive spaces.
+   *   - Email: Required and email format validation.
+   *   - Password: Required, no space allowed, and password complexity validation.
+   * 
+   * Note: Validators are defined in external helper classes.
+   */
   ngOnInit(): void {
     this.registerForm = this.formBuilder.group({
       name: [null, [Validators.required, Validators.pattern('^[A-Za-z ]+$'),
@@ -52,25 +84,37 @@ export class RegisterComponent {
     });
   }
 
+  /**
+   * Toggles the visibility of the password input.
+   * - Switches between password type (hidden) and text type (visible) based on the current visibility state.
+   * - Updates the eye icon accordingly.
+   */
   hideShowPass() {
     this.isText = !this.isText;
     this.isText ? this.eyeIcon = "fa-eye" : this.eyeIcon = "fa-eye-slash";
     this.isText ? this.type = "text" : this.type = "password";
   }
 
+  /**
+   * Handles the registration process.
+   * - Validates the registration form.
+   *   - If valid, sends a registration request to the authentication service.
+   *   - If successful, resets the form, displays a success toast, and navigates to the login page.
+   *   - If the form is not valid, marks all form fields as touched and displays an error toast.
+   */
   onRegister() {
-    if(this.registerForm.valid) {
+    if (this.registerForm.valid) {
       this.authService.register(this.registerForm.value).subscribe({
         next: (res) => {
           this.registerForm.reset();
-          this.toast.success({detail:"SUCCESS", summary:res.message, duration:3000});
+          this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
           this.router.navigate(['login']);
         }
       });
     }
     else {
       ValidateForm.validateAllFormFields(this.registerForm);
-      this.toast.error({detail:"ERROR", summary:"Form is not valid.", duration:3000});
+      this.toast.error({ detail: "ERROR", summary: "Form is not valid.", duration: 3000 });
     }
   }
 }
