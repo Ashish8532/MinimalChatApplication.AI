@@ -18,11 +18,9 @@ export class RegisterComponent {
   type: string = "password";
   isText: boolean = false;
   eyeIcon: string = "fa-eye-slash"
-
   registerForm!: FormGroup;
-
   user!: SocialUser | null;
-  
+
   constructor(private formBuilder: FormBuilder, 
     private authService: AuthService, 
     private router: Router,
@@ -61,7 +59,6 @@ export class RegisterComponent {
   }
 
   onRegister() {
-    console.log(this.registerForm);
     if(this.registerForm.valid) {
       this.authService.register(this.registerForm.value).subscribe({
         next: (res) => {

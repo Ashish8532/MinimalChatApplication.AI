@@ -69,14 +69,13 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       this.fetchConversationHistory(this.userId);
     });
 
-    this.signalRService.receiveUpdatedStatus$().subscribe((userStatus: boolean) => {
-      const conversationToUpdate = this.conversationHistory.find((conversation: { receiverId: string }) => conversation.receiverId === this.userId);
-
-      if (conversationToUpdate) {
-        this.IsActive = userStatus;
+    this.signalRService.receiveUpdatedStatus$().subscribe({
+      next: (data: { isActive: boolean, receiverId: string }) => {
+      if (this.userId === data.receiverId) {
+        this.IsActive = data.isActive;
+      }
       }
     });
-
 
     this.scrollToBottom();
   }
