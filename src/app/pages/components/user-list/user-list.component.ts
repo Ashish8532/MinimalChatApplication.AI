@@ -39,7 +39,6 @@ export class UserListComponent implements OnInit, OnChanges {
 
     this.signalRService.receiveUpdatedMessageCount$().subscribe({
       next: (data: { messageCount: number, isRead: boolean, userId: string }) => {
-        console.log(data);
         const userToUpdate = this.users.find(user => user.userId === data.userId);
       if (userToUpdate) {
         userToUpdate.messageCount = data.messageCount;
@@ -69,15 +68,7 @@ export class UserListComponent implements OnInit, OnChanges {
     this.previousUserId = this.selectedUserId;
     this.selectedUserId = userId; // Set the selected user ID
     this.messageService.updateChatStatus(userId, this.previousUserId!).subscribe(
-      (response) => {
-        // Handle the API response if needed
-        console.log(response);
-      },
-      (error) => {
-        // Handle API error
-        console.error(error);
-      }
-    );
+      (response) => {});
     this.userSelected.emit(userSelection); 
   }
 
@@ -88,7 +79,6 @@ export class UserListComponent implements OnInit, OnChanges {
   }
   
   getRandomColor(index: number): string {
-    // Use the index to select a color from the predefined array
     const colorIndex = index % this.predefinedColors.length;
     return this.predefinedColors[colorIndex];
   }

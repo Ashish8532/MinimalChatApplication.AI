@@ -34,7 +34,6 @@ export class MessageService {
 
 
   getConversationHistory(userId: string, before?: Date, count: number = 20, sort: string = 'desc'): Observable<any> {
-    // const headers = GetToken.getHeaders();
     // Create query parameters
     let params = new HttpParams()
       .set('userId', userId)
@@ -86,6 +85,7 @@ export class MessageService {
       .set('currentUserId', currentUserId)
       .set('previousUserId', previousUserId!);
 
-    return this.http.post(`${this.apiUrl}/chat-status`, null, { params: params});
+    return this.http.post(`${this.apiUrl}/chat-status`, null, { params: params}).pipe(
+      catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 }

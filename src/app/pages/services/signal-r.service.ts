@@ -53,10 +53,10 @@ export class SignalRService {
     });
   }
 
-  receiveUpdatedStatus$ = (): Observable<boolean> => {
+  receiveUpdatedStatus$ = (): Observable<{ isActive: boolean, receiverId: string }> => {
     return new Observable(observer => {
-      this.hubConnection.on('UpdateStatus', (userStatus: boolean) => {
-        observer.next(userStatus);
+      this.hubConnection.on('UpdateStatus', (isActive: boolean, receiverId: string) => {
+        observer.next({isActive, receiverId});
       });
     });
   }
