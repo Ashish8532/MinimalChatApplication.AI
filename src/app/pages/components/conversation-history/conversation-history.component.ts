@@ -1,4 +1,12 @@
-import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { MessageService } from '../../services/message.service';
 import { NgToastService } from 'ng-angular-popup';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -16,7 +24,7 @@ import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-conversation-history',
   templateUrl: './conversation-history.component.html',
-  styleUrls: ['./conversation-history.component.css']
+  styleUrls: ['./conversation-history.component.css'],
 })
 export class ConversationHistoryComponent implements OnInit, OnChanges {
   @Input() userId: string = ''; // Input property to receive userId from ChatComponent
@@ -37,37 +45,41 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   editedMessageContent: string = '';
 
   loggedInUserName: string = '';
+  loggedUserId: string | undefined;
 
   IsActive: boolean = false;
-
 
   /**
    * Constructor of the ConversationHistoryComponent class.
    * - Initializes the component with required services and dependencies.
    * - Creates a form group for editing messages.
-   * 
+   *
    * @param messageService - An instance of the MessageService for message-related operations.
    * @param toast - An instance of the NgToastService for displaying toast notifications.
    * @param fb - An instance of the FormBuilder for creating and managing forms.
    * @param authService - An instance of the AuthService for user authentication operations.
    * @param signalRService - An instance of the SignalRService for real-time updates.
    */
-  constructor(private messageService: MessageService,
+  constructor(
+    private messageService: MessageService,
     private toast: NgToastService,
     private fb: FormBuilder,
     private authService: AuthService,
-    private signalRService: SignalRService) { }
-
+    private signalRService: SignalRService
+  ) {}
 
   /**
- * Angular lifecycle hook called after the component has been initialized.
- * - Initializes the edit form and fetches the initial conversation history.
- * - Subscribes to real-time events for new messages, edits, deletions, and status updates.
- * - Scrolls to the bottom to display the latest messages.
- */
+   * Initializes the component.
+   * - Sets up the form with content field and required validator.
+   * - Fetches conversation history for the specified user on component initialization.
+   * - Subscribes to the real-time updates for new messages, edited messages, and deleted messages.
+   * - Subscribes to real-time updates for the user's status.
+   * - Scrolls to the bottom of the conversation.
+   */
   ngOnInit() {
+    // Set up the form with content field and required validator
     this.editForm = this.fb.group({
-      content: ['', Validators.required] // Add the required validator
+      content: ['', Validators.required],
     });
 
     if (this.userId) {
@@ -75,83 +87,158 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       this.fetchConversationHistory(this.userId);
     }
 
+    /**
+     * Subscribes to changes in the user's username through the authService.
+     * - Updates the component's loggedInUserName property with the received username.
+     *
+     * @remarks
+     * This subscription allows the component to dynamically reflect any changes in the user's username.
+     */
     this.authService.getUsername().subscribe((username) => {
       this.loggedInUserName = username;
     });
 
-    // Subscribe to real-time send
+    /**
+     * Subscribes to changes in the loggedUserId through the AuthService.
+     * - Updates the component's loggedUserId property with the received user ID.
+     *
+     * @remarks
+     * This subscription allows the component to dynamically reflect any changes in the logged user's ID.
+     */
+    this.authService.loggedUserId$.subscribe((userId) => {
+      this.loggedUserId = userId;
+    });
+
+    /**
+     * Subscribes to new message events through SignalR.
+     * - Checks if the logged user is the intended receiver of the new message.
+     * - Updates the conversation history and scrolls to the bottom if the condition is met.
+     *
+     * @param data - The data object containing information about the new message.
+     */
     this.signalRService.receiveNewMessage$().subscribe((data: any) => {
-      this.fetchConversationHistory(this.userId);
+      if (this.loggedUserId === data.receiverId) {
+        this.conversationHistory.push(data);
+        this.scrollToBottom();
+      }
     });
 
-    // Subscribe to real-time edits
+    /**
+     * Subscribes to edited message events through SignalR.
+     * - Finds the corresponding message in the conversation history based on the received message ID.
+     * - Updates the content of the found message with the edited content from the SignalR event.
+     *
+     * @param data - The data object containing information about the edited message.
+     *
+     * @remarks
+     * This subscription updates the content of a message in the conversation history when an edited
+     * message event is received through SignalR. It ensures that the UI reflects real-time changes
+     * made to the content of a message.
+     */
     this.signalRService.receiveEditedMessage$().subscribe((data: any) => {
-      this.fetchConversationHistory(this.userId);
+      const editedMessage = this.conversationHistory.find(
+        (m: any) => m.id === data.messageId
+      );
+      if (editedMessage) {
+        editedMessage.content = data.content;
+      }
     });
 
-    // Subscribe to real-time deletions
+    /**
+     * Subscribes to deleted message events through SignalR.
+     * - Filters out the deleted message from the conversation history based on the received message ID.
+     *
+     * @param messageId - The ID of the deleted message.
+     *
+     * @remarks
+     * This subscription filters out the deleted message from the conversation history when a deleted
+     * message event is received through SignalR. It ensures that the UI reflects real-time removal
+     * of a message from the conversation history.
+     */
     this.signalRService.receiveDeletedMessage$().subscribe((messageId: any) => {
-      this.fetchConversationHistory(this.userId);
+      this.conversationHistory = this.conversationHistory.filter(
+        (m: any) => m.id !== messageId
+      );
     });
 
+    /**
+     * Subscribes to updated status events through SignalR.
+     * - Updates the `IsActive` property based on the received status information.
+     *
+     * @param data - The data object containing information about the updated status.
+     *
+     * @remarks
+     * This subscription updates the `IsActive` property when an updated status event is received through SignalR.
+     * It ensures that the UI reflects real-time changes in the active status of the user's conversation partner.
+     */
     this.signalRService.receiveUpdatedStatus$().subscribe({
-      next: (data: { isActive: boolean, receiverId: string }) => {
+      next: (data: { isActive: boolean; receiverId: string }) => {
         if (this.userId === data.receiverId) {
           this.IsActive = data.isActive;
         }
-      }
+      },
     });
 
     this.scrollToBottom();
   }
 
+
   /**
-   * Method to fetch conversation history based on the userId.
+   * Fetches conversation history based on the userId.
    * - Calls the message service to retrieve conversation history.
-   * - Updates the component properties with the fetched data.
+   * - Updates the component properties with the fetched data, including the conversation history and IsActive.
    * - Scrolls to the bottom to display the latest messages.
-   * 
+   *
    * @param userId - The ID of the user for whom the conversation history is fetched.
+   *
+   * @remarks
+   * This method initiates the process of fetching conversation history for a user, updating the component
+   * properties, and ensuring that the latest messages are displayed by scrolling to the bottom.
    */
   fetchConversationHistory(userId: string) {
     this.messageService.getConversationHistory(userId).subscribe({
       next: (res) => {
-        this.conversationHistory = res.data.reverse();
+        this.conversationHistory = res.data;
         this.IsActive = res.isActive;
         this.scrollToBottom();
-      }
+      },
     });
   }
 
 
   /**
-   * Method to fetch more conversation history.
-   * - Calls the message service to retrieve older messages based on the userId and timestamp.
-   * - Updates the component properties with the fetched data.
-   * - Handles loading state and updates the IsActive property.
-   * 
-   * @param userId - The ID of the user for whom more conversation history is fetched.
+   * Fetches additional conversation history for a user.
+   * - Initiates a call to the message service to retrieve older messages based on the user ID and timestamp.
+   * - Updates component properties with the fetched data, including the conversation history.
+   * - Manages loading state and updates the IsActive property based on the API response.
+   *
+   * @param userId - The ID of the user for whom additional conversation history is being fetched.
    * @param before - The timestamp of the oldest message to fetch more history.
+   *
+   * @remarks
+   * This method handles the process of fetching additional conversation history for a user,
+   * updating the component properties, managing loading state, and updating the IsActive property.
    */
-  fetchMoreConversationHistory(userId: string, before: Date) {
+  fetchMoreConversationHistory(userId: string, before: string) {
     this.isLoadingMoreMessages = true;
     this.messageService.getConversationHistory(userId, before).subscribe({
       next: (res) => {
-        const olderMessages = res.data.reverse(); // Reverse to maintain chronological order
-        this.conversationHistory = olderMessages.concat(this.conversationHistory);
+        const olderMessages = res.data;
+        this.conversationHistory = olderMessages.concat(
+          this.conversationHistory
+        );
         this.isLoadingMoreMessages = false;
         this.IsActive = res.IsActive;
       },
       error: (err) => {
         this.isLoadingMoreMessages = false;
-      }
+      },
     });
   }
 
-
   /**
    * Method to format a timestamp into a human-readable date.
-   * 
+   *
    * @param timestamp - The timestamp to format.
    * @returns A formatted date string.
    */
@@ -159,28 +246,23 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     if (timestamp === null) {
       return '';
     }
-
     const datePipe = new DatePipe('en-US');
     return datePipe.transform(timestamp, 'dd MMMM yyyy') || '';
   }
 
-
   /**
    * Method to format a timestamp into a human-readable time.
-   * 
+   *
    * @param timestamp - The timestamp to format.
    * @returns A formatted time string.
    */
   formatTime(timestamp: string | null): string {
     if (timestamp === null) {
-      // Handle the case where timestamp is null
       return '';
     }
-
     const datePipe = new DatePipe('en-US');
     return datePipe.transform(timestamp, 'shortTime') || '';
   }
-
 
   /**
    * Method triggered when the user scrolls in the conversation container.
@@ -191,13 +273,17 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     const container = this.scrollContainer.nativeElement;
     const isScrollingUp = container.scrollTop < this.lastScrollTop;
 
-    if (isScrollingUp && !this.isLoadingMoreMessages && container.scrollTop < 20 && this.conversationHistory.length > 0) {
+    if (
+      isScrollingUp &&
+      !this.isLoadingMoreMessages &&
+      container.scrollTop < 20 &&
+      this.conversationHistory.length > 0
+    ) {
       const oldestMessageTimestamp = this.conversationHistory[0].timestamp;
-      this.fetchMoreConversationHistory(this.userId, new Date(oldestMessageTimestamp));
+      this.fetchMoreConversationHistory(this.userId, oldestMessageTimestamp);
     }
     this.lastScrollTop = container.scrollTop;
   }
-
 
   /**
    * Method to scroll to the bottom of the conversation container.
@@ -210,12 +296,11 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     }, 0);
   }
 
-
   /**
    * Angular lifecycle hook called when input properties change.
    * - Resets the conversation history when the userId changes (new user selected).
    * - Fetches the conversation history for the new userId.
-   * 
+   *
    * @param changes - The changed properties.
    */
   ngOnChanges(changes: SimpleChanges) {
@@ -228,61 +313,72 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     }
   }
 
-
   /**
    * Method to get initials from a user's name.
    * - Splits the name into parts, extracts initials, and joins them.
-   * 
+   *
    * @param name - The name for which initials are generated.
    * @returns Initials of the user's name.
    */
   getInitials(name: string): string {
     const nameParts = name.split(' ');
-    const initials = nameParts.map(part => part.charAt(0).toUpperCase()).join('');
+    const initials = nameParts
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('');
     return initials;
   }
 
 
   /**
- * Method to send a new message.
- * - Validates the message content to ensure it is not empty.
- * - Creates a message object with the receiver's ID and content.
- * - Calls the message service to send the message.
- * - Updates the conversation history, scrolls to the bottom, and displays a success toast.
- * - Clears the input for new messages after a successful send.
- */
+   * Sends a new message.
+   * - Validates the message content to ensure it is not empty.
+   * - Creates a message object with the receiver's ID and content.
+   * - Calls the message service to send the message.
+   * - Updates the conversation history with the sent message, scrolls to the bottom, and displays a success toast.
+   * - Clears the input for new messages after a successful send.
+   *
+   * @remarks
+   * This method handles the process of sending a new message, including content validation, service call,
+   * updating the conversation history, scrolling to the bottom, and displaying a success toast. It also manages
+   * the UI state by clearing the input for new messages after a successful send.
+   */
   sendMessage() {
     if (this.newMessageContent.trim() === '') {
-      // Handle empty message content, show an error message, or disable the send button
       return;
     }
-    // Create a message object with the receiver's ID and content
     const message = {
       receiverId: this.userId,
-      content: this.newMessageContent
+      content: this.newMessageContent,
     };
-
-    // Call the message service to send the message
     this.messageService.sendMessage(message).subscribe({
       next: (res) => {
-        this.fetchConversationHistory(this.userId);
+        const existingMessage = this.conversationHistory.find(
+          (m: any) => m.id === res.data.id
+        );
+        if (!existingMessage) {
+          this.conversationHistory.push(res.data);
+          this.scrollToBottom();
+        }
         this.scrollToBottom();
-        this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
+        this.toast.success({
+          detail: 'SUCCESS',
+          summary: res.message,
+          duration: 3000,
+        });
         this.newMessageContent = '';
         this.scrollToBottom();
-      }
+      },
     });
   }
 
-
   /**
-  * Method to show the context menu for a message.
-  * - Prevents the default context menu.
-  * - Stores the selected message and displays the context menu.
-  * 
-  * @param event - The mouse event triggering the context menu.
-  * @param message - The selected message.
-  */
+   * Method to show the context menu for a message.
+   * - Prevents the default context menu.
+   * - Stores the selected message and displays the context menu.
+   *
+   * @param event - The mouse event triggering the context menu.
+   * @param message - The selected message.
+   */
   showContextMenu(event: MouseEvent, message: any) {
     event.preventDefault();
     this.selectedMessage = message;
@@ -290,7 +386,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     this.isEditing = false;
     this.scrollToBottom();
   }
-
 
   /**
    * Method to hide the context menu.
@@ -301,14 +396,13 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     this.isContextMenuVisible = false;
   }
 
-
   /**
- * Initiates the editing of a message.
- * - Sets the selected message, hides the context menu, and enables the editing mode.
- * - Scrolls to the bottom of the conversation.
- *
- * @param message - The message to be edited.
- */
+   * Initiates the editing of a message.
+   * - Sets the selected message, hides the context menu, and enables the editing mode.
+   * - Scrolls to the bottom of the conversation.
+   *
+   * @param message - The message to be edited.
+   */
   editMessageTextBox(message: any) {
     this.selectedMessage = message;
     this.isContextMenuVisible = false;
@@ -316,44 +410,61 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     this.scrollToBottom();
   }
 
-  /**
- * Edits a message content.
- * - Calls the message service to update the content of the selected message.
- * - Displays a success toast and updates the conversation history.
- * - Scrolls to the bottom, hides the context menu, and disables editing mode.
- *
- * @param message - The message to be edited.
- */
-  editMessage(message: any) {
-    this.messageService.updateMessage(message.messageId, message.content).subscribe({
-      next: (res) => {
-        this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
 
-        this.fetchConversationHistory(this.userId);
-        this.scrollToBottom();
-        this.isContextMenuVisible = false;
-        this.isEditing = false;
-      }
-    });
+  /**
+   * Edits the content of a message.
+   * - Calls the message service to update the content of the selected message.
+   * - Displays a success toast and updates the conversation history with the edited message.
+   * - Scrolls to the bottom, hides the context menu, and disables editing mode.
+   *
+   * @param message - The message to be edited.
+   *
+   * @remarks
+   * This method updates the content of the selected message through the message service,
+   * provides visual feedback on success using a toast, and ensures that the conversation history
+   * reflects the edited message. Additionally, it manages the UI state by scrolling to the bottom,
+   * hiding the context menu, and disabling editing mode after the editing process.
+   */
+  editMessage(message: any) {
+    this.messageService.updateMessage(message.id, message.content).subscribe({
+        next: (res) => {
+          this.toast.success({
+            detail: 'SUCCESS',
+            summary: res.message,
+            duration: 3000,
+          });
+
+          const editedMessage = this.conversationHistory.find(
+            (m: any) => m.id === message.id
+          );
+          if (editedMessage) {
+            this.conversationHistory.content = message.content;
+          }
+          this.scrollToBottom();
+          this.isContextMenuVisible = false;
+          this.isEditing = false;
+        },
+      });
   }
 
   /**
- * Cancels the ongoing message editing.
- * - Hides the context menu and disables the editing mode.
- */
+   * Cancels the ongoing message editing.
+   * - Hides the context menu and disables the editing mode.
+   */
   cancelEdit() {
     this.isContextMenuVisible = false;
     this.isEditing = false;
   }
 
+
   /**
- * Confirms the deletion of a message using a Swal (SweetAlert) confirmation dialog.
- * - Displays a warning dialog to confirm the deletion.
- * - Calls the `deleteMessage` method if the user confirms.
- * - Shows success or cancellation messages based on the user's choice.
- * 
- * @param messageId - The ID of the message to be deleted.
- */
+   * Confirms the deletion of a message using a Swal (SweetAlert) confirmation dialog.
+   * - Displays a warning dialog to confirm the deletion.
+   * - Calls the `deleteMessage` method if the user confirms.
+   * - Shows success or cancellation messages based on the user's choice.
+   *
+   * @param messageId - The ID of the message to be deleted.
+   */
   confirmDelete(messageId: number) {
     Swal.fire({
       title: 'Are you sure?',
@@ -364,7 +475,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       cancelButtonText: 'No, keep it',
     }).then((result) => {
       if (result.value) {
-        this.deleteMessage(messageId)
+        this.deleteMessage(messageId);
         Swal.fire('Deleted!', 'Your item has been deleted.', 'success');
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire('Cancelled', 'Your item is safe :)', 'error');
@@ -373,18 +484,25 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   }
 
   /**
- * Deletes a message by calling the `deleteMessage` method from the message service.
- * - Subscribes to the observable returned by the service to handle the success and error cases.
- * - Fetches the updated conversation history upon successful deletion.
- * - Hides the context menu and editing mode.
- * - Displays success or error messages using Swal (SweetAlert).
- * 
- * @param messageId - The ID of the message to be deleted.
- */
+   * Deletes a message by invoking the `deleteMessage` method from the message service.
+   * - Subscribes to the observable returned by the service to handle success and error cases.
+   * - Updates the conversation history by removing the deleted message upon successful deletion.
+   * - Hides the context menu and editing mode.
+   * - Displays success or error messages using Swal (SweetAlert).
+   *
+   * @param messageId - The ID of the message to be deleted.
+   *
+   * @remarks
+   * This method filters out the deleted message from the conversation history and provides visual feedback
+   * through Swal for success or error cases. Additionally, it manages the visibility of the context menu
+   * and editing mode during and after the deletion process.
+   */
   deleteMessage(messageId: number) {
     this.messageService.deleteMessage(messageId).subscribe({
       next: (res) => {
-        this.fetchConversationHistory(this.userId);
+        this.conversationHistory = this.conversationHistory.filter(
+          (m: any) => m.id !== messageId
+        );
         this.isContextMenuVisible = false;
         this.isEditing = false;
         Swal.fire('Deleted!', res.message, 'success');
@@ -393,9 +511,13 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
         if (err.status === 401 || err.status === 404 || err.status === 500) {
           Swal.fire('Error', err.error.message, 'error');
         } else {
-          Swal.fire('Error', 'Something went wrong while processing the request.', 'error');
+          Swal.fire(
+            'Error',
+            'Something went wrong while processing the request.',
+            'error'
+          );
         }
-      }
+      },
     });
   }
 }

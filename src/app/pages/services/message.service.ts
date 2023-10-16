@@ -48,19 +48,19 @@ export class MessageService {
   /**
    * Retrieves conversation history for a user.
    * @param userId - The ID of the user.
-   * @param before - Date indicating the starting point for the history.
+   * @param before - Date string indicating the starting point for the history.
    * @param count - The number of messages to retrieve (default: 20).
    * @param sort - Sort order for messages (default: 'desc').
    * @returns An observable with the conversation history.
-   */
-  getConversationHistory(userId: string, before?: Date, count: number = 20, sort: string = 'desc'): Observable<any> {
+ */
+  getConversationHistory(userId: string, before?: string, count: number = 20, sort: string = 'desc'): Observable<any> {
     let params = new HttpParams()
       .set('userId', userId)
       .set('count', count)
       .set('sort', sort);
 
     if (before) {
-      params = params.set('before', before.toISOString());
+      params = params.set('before', before);
     }
     return this.http.get(`${this.apiUrl}`, { params }).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));

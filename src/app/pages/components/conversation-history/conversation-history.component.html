@@ -47,7 +47,7 @@
                 </div>
                 <ul>
                   <li (click)="editMessageTextBox(selectedMessage)">Edit Message</li>
-                  <li (click)="confirmDelete(message.messageId)">Delete Message</li>
+                  <li (click)="confirmDelete(message.id)">Delete Message</li>
                 </ul>
               </div>
               <p class="small me-3 mb-3 rounded-3 text-muted float-end">{{ formatTime(message.timestamp)}}</p>

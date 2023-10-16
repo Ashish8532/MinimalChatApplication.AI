@@ -25,16 +25,18 @@ export class RequestLogComponent implements OnInit {
   selectedTimeframe: string = '5'; // Default selection for time range
 
   // Column visibility properties
-  showId: boolean = true; // Visibility of log ID column
-  showTimestamp: boolean = true; // Visibility of timestamp column
-  showIpAddress: boolean = true; // Visibility of IP address column
-  showRequestBody: boolean = true; // Visibility of request body column
-  showUsername: boolean = true; // Visibility of username column
+  showId: boolean = true; 
+  showTimestamp: boolean = true;
+  showIpAddress: boolean = true; 
+  showRequestBody: boolean = true; 
+  showUsername: boolean = true; 
 
   currentPage: number = 1; // Current page number for pagination
   itemsPerPage: number = 10; // Number of items per page
   totalItems: number = 0; // Total number of logs
 
+  // Constant for the date format string
+  private readonly dateFormat: string = 'yyyy-MM-ddTHH:mm:ss';
 
   /**
    * Constructor for initializing services and dependencies.
@@ -66,14 +68,17 @@ export class RequestLogComponent implements OnInit {
   }
 
   /**
-   * Sets the default time range to the last 5 minutes.
-   */
+ * Sets the default time range to the last 5 minutes.
+ * - Retrieves the current timestamp and calculates the time five minutes ago.
+ * - Formats the start and end times using the specified date format.
+ * - Updates the component's `startTime` and `endTime` properties.
+ */
   setDefaultTimeRange(): void {
     const currentTime = new Date();
     const fiveMinutesAgo = new Date(currentTime.getTime() - 5 * 60 * 1000);
 
-    this.startTime = this.datePipe.transform(fiveMinutesAgo, 'yyyy-MM-ddTHH:mm:ss') || null;
-    this.endTime = this.datePipe.transform(currentTime, 'yyyy-MM-ddTHH:mm:ss') || null;
+    this.startTime = this.datePipe.transform(fiveMinutesAgo, this.dateFormat) || null;
+    this.endTime = this.datePipe.transform(currentTime, this.dateFormat) || null;
   }
 
   /**
@@ -91,13 +96,13 @@ export class RequestLogComponent implements OnInit {
 
     switch (this.selectedTimeframe) {
       case '5':
-        this.startTime = this.datePipe.transform(currentTime.getTime() - 5 * 60 * 1000, 'yyyy-MM-ddTHH:mm:ss') || null;
+        this.startTime = this.datePipe.transform(currentTime.getTime() - 5 * 60 * 1000, this.dateFormat) || null;
         break;
       case '10':
-        this.startTime = this.datePipe.transform(currentTime.getTime() - 10 * 60 * 1000, 'yyyy-MM-ddTHH:mm:ss') || null;
+        this.startTime = this.datePipe.transform(currentTime.getTime() - 10 * 60 * 1000, this.dateFormat) || null;
         break;
       case '30':
-        this.startTime = this.datePipe.transform(currentTime.getTime() - 30 * 60 * 1000, 'yyyy-MM-ddTHH:mm:ss') || null;
+        this.startTime = this.datePipe.transform(currentTime.getTime() - 30 * 60 * 1000, this.dateFormat) || null;
         break;
       case 'custom':
         break;
@@ -107,12 +112,14 @@ export class RequestLogComponent implements OnInit {
     this.fetchLogs();
   }
 
-  /**
- * Fetches logs based on the current time range (startTime and endTime).
- * - Calls the logService to retrieve logs from the server.
- * - Updates the totalItems property for pagination.
- * - Extracts a subset of logs based on the current page and itemsPerPage.
- * - Displays a success toast message with the response message.
+ /**
+ * Handles the selection of a predefined time range.
+ * - Retrieves the selected timeframe from the reactive form.
+ * - Gets the current timestamp for reference.
+ * - Updates the start time based on the selected timeframe.
+ * - For predefined options ('5', '10', '30'), calculates the start time relative to the current timestamp.
+ * - For the 'custom' option, custom handling can be added using the property `this.customTime`.
+ * - Invokes the `fetchLogs` method to retrieve logs with the updated time range.
  */
   fetchLogs(): void {
     if (this.startTime && this.endTime) {

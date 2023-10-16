@@ -9,6 +9,10 @@ import ValidatePassword from 'src/app/shared/helpers/validate-password';
 import ValidateForm from 'src/app/shared/helpers/validate-forms';
 import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
 
+// Constant for the name pattern
+const NAME_PATTERN = '^[A-Za-z ]+$';
+
+
 /**
  * Component for user registration.
  * - Manages the registration form and its validation.
@@ -77,7 +81,7 @@ export class RegisterComponent {
    */
   ngOnInit(): void {
     this.registerForm = this.formBuilder.group({
-      name: [null, [Validators.required, Validators.pattern('^[A-Za-z ]+$'),
+      name: [null, [Validators.required, Validators.pattern(NAME_PATTERN),
       Validators.minLength(2), Validators.maxLength(20), NoConsecutiveSpaces.noConsecutiveSpaces]],
       email: [null, [Validators.required, Validators.email]],
       password: [null, [Validators.required, NoSpaceAllowed.noSpaceAllowed, ValidatePassword.validatePassword]],
