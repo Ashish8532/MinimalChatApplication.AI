@@ -49,6 +49,10 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
 
   IsActive: boolean = false;
 
+  // Emoji picker and select Emoji
+  isEmojiPickerVisible: boolean = false;
+  selectedEmoji: string = '';
+
   /**
    * Constructor of the ConversationHistoryComponent class.
    * - Initializes the component with required services and dependencies.
@@ -182,7 +186,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     this.scrollToBottom();
   }
 
-
   /**
    * Fetches conversation history based on the userId.
    * - Calls the message service to retrieve conversation history.
@@ -204,7 +207,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       },
     });
   }
-
 
   /**
    * Fetches additional conversation history for a user.
@@ -328,7 +330,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     return initials;
   }
 
-
   /**
    * Sends a new message.
    * - Validates the message content to ensure it is not empty.
@@ -357,6 +358,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
         );
         if (!existingMessage) {
           this.conversationHistory.push(res.data);
+          this.isEmojiPickerVisible = false;
           this.scrollToBottom();
         }
         this.scrollToBottom();
@@ -384,7 +386,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     this.selectedMessage = message;
     this.isContextMenuVisible = true;
     this.isEditing = false;
-    this.scrollToBottom();
   }
 
   /**
@@ -410,7 +411,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     this.scrollToBottom();
   }
 
-
   /**
    * Edits the content of a message.
    * - Calls the message service to update the content of the selected message.
@@ -427,24 +427,24 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
    */
   editMessage(message: any) {
     this.messageService.updateMessage(message.id, message.content).subscribe({
-        next: (res) => {
-          this.toast.success({
-            detail: 'SUCCESS',
-            summary: res.message,
-            duration: 3000,
-          });
+      next: (res) => {
+        this.toast.success({
+          detail: 'SUCCESS',
+          summary: res.message,
+          duration: 3000,
+        });
 
-          const editedMessage = this.conversationHistory.find(
-            (m: any) => m.id === message.id
-          );
-          if (editedMessage) {
-            this.conversationHistory.content = message.content;
-          }
-          this.scrollToBottom();
-          this.isContextMenuVisible = false;
-          this.isEditing = false;
-        },
-      });
+        const editedMessage = this.conversationHistory.find(
+          (m: any) => m.id === message.id
+        );
+        if (editedMessage) {
+          this.conversationHistory.content = message.content;
+        }
+        this.scrollToBottom();
+        this.isContextMenuVisible = false;
+        this.isEditing = false;
+      },
+    });
   }
 
   /**
@@ -455,7 +455,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     this.isContextMenuVisible = false;
     this.isEditing = false;
   }
-
 
   /**
    * Confirms the deletion of a message using a Swal (SweetAlert) confirmation dialog.
@@ -500,12 +499,12 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   deleteMessage(messageId: number) {
     this.messageService.deleteMessage(messageId).subscribe({
       next: (res) => {
+        Swal.fire('Deleted!', res.message, 'success');
         this.conversationHistory = this.conversationHistory.filter(
           (m: any) => m.id !== messageId
         );
         this.isContextMenuVisible = false;
         this.isEditing = false;
-        Swal.fire('Deleted!', res.message, 'success');
       },
       error: (err) => {
         if (err.status === 401 || err.status === 404 || err.status === 500) {
@@ -519,5 +518,30 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
         }
       },
     });
+  }
+
+  /**
+   * Toggles the visibility of the emoji picker.
+   *
+   * This function is called when the user clicks a button or icon to open/close
+   * the emoji picker. It toggles the visibility of the emoji picker container
+   * based on the current state.
+   */
+  openEmojiPicker() {
+    this.isEmojiPickerVisible = !this.isEmojiPickerVisible;
+  }
+  
+
+  /**
+   * Adds a selected emoji to the message content.
+   *
+   * When the user selects an emoji from the emoji picker, this function is called.
+   * It updates the `newMessageContent` by appending the selected emoji to the end.
+   *
+   * @param emoji The selected emoji object containing emoji details.
+   */
+  addEmoji(emoji: any) {
+    this.selectedEmoji = emoji.emoji.native;
+    this.newMessageContent += this.selectedEmoji;
   }
 }
