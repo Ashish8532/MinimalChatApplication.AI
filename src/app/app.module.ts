@@ -19,6 +19,7 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { GoogleLoginProvider, GoogleSigninButtonModule, SocialAuthServiceConfig, SocialLoginModule } from '@abacritt/angularx-social-login';
 import { TokenInterceptor } from './shared/Interceptor/token.interceptor';
 import { HomeComponent } from './pages/components/home/home.component';
+import { PickerModule } from '@ctrl/ngx-emoji-mart';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,7 @@ import { HomeComponent } from './pages/components/home/home.component';
     ConversationHistoryComponent,
     ChatComponent,
     RequestLogComponent,
-    HomeComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
@@ -42,7 +43,8 @@ import { HomeComponent } from './pages/components/home/home.component';
     DataTablesModule,
     PaginationModule.forRoot(),
     SocialLoginModule,
-    GoogleSigninButtonModule
+    GoogleSigninButtonModule,
+    PickerModule
   ],
   providers: [
     { 

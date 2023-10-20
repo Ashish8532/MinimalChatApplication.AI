@@ -11,16 +11,18 @@
     </div>
   </div>
   <div class="p-2 rounded">
-
-    <div class="scroll-container pt-3 pe-3" data-mdb-perfect-scrollbar="true" style="position: relative; height: 330px"
+    <div class="scroll-container pt-3 pe-3" data-mdb-perfect-scrollbar="true"
       (scroll)="onScroll()" #scrollContainer>
       <ng-container *ngFor="let message of conversationHistory; let i = index">
         <div [class.editing]="isEditing && message === selectedMessage"
           (contextmenu)="showContextMenu($event, message)">
-
-          <ng-container *ngIf="i === 0 || formatDate(conversationHistory[i - 1].timestamp) !== formatDate(message.timestamp)">
+          <ng-container *ngIf="
+              i === 0 ||
+              formatDate(conversationHistory[i - 1].timestamp) !==
+                formatDate(message.timestamp)
+            ">
             <div class="text-center mb-3">
-              <div class="date-cluster border d-inline-block">
+              <div class="date-cluster border d-inline-block text-dark">
                 {{ formatDate(message.timestamp) }}
               </div>
             </div>
@@ -28,55 +30,76 @@
 
           <!-- Display the receiver's message -->
           <div class="d-flex flex-row justify-content-start" *ngIf="message.senderId === userId">
-            <div>
-              <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: rgba(57, 192, 237,.2);">{{
-                message.content }}</p>
-              <p class="small ms-3 mb-3 rounded-3 text-muted float-end">{{ formatTime(message.timestamp) }}</p>
+            <div class="content-receiver p-2 mb-4">
+              <p class="mb-0">{{ message.content }}</p>
+              <small class="timestamp text-muted">{{ formatTime(message.timestamp) }}</small>
             </div>
           </div>
+
 
           <!-- Display the sender's message -->
           <div class="d-flex flex-row justify-content-end" *ngIf="message.receiverId === userId">
-            <div>
-              <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary">{{ message.content }}</p>
-              <div *ngIf="isContextMenuVisible && message === selectedMessage && message.senderId !== userId" class="context-menu">
-                <div class="context-menu-header">
-                  <button type="button" class="close " aria-label="Close" (click)="hideContextMenu()">
-                    <span aria-hidden="true">&times;</span>
+            <div class="content-sender p-2 mb-4 bg-primary" style="position: relative;">
+              <p class="text-white mb-1">{{ message.content }}</p>
+              <small class="timestamp text-white">{{ formatTime(message.timestamp) }}</small>
+              <div *ngIf="isContextMenuVisible && message === selectedMessage && message.senderId !== userId"
+                   class="context-menu d-flex p-2 rounded-3">
+                <div>
+                  <a class="btn btn-success me-sm-2" (click)="editMessageTextBox(selectedMessage)"><i class="bi bi-pencil-square"></i></a>
+                </div>
+                <div>
+                  <a class="btn btn-danger me-sm-2" (click)="confirmDelete(message.id)"><i class="bi bi-trash-fill"></i></a>
+                </div>
+                <div>
+                  <button type="button" class="close" aria-label="Close" (click)="hideContextMenu()">
+                    <i class="bi bi-x-circle-fill"></i>
                   </button>
                 </div>
-                <ul>
-                  <li (click)="editMessageTextBox(selectedMessage)">Edit Message</li>
-                  <li (click)="confirmDelete(message.id)">Delete Message</li>
-                </ul>
               </div>
-              <p class="small me-3 mb-3 rounded-3 text-muted float-end">{{ formatTime(message.timestamp)}}</p>
             </div>
           </div>
+          
         </div>
 
-         <!-- Inline editor for editing messages -->
-         <div *ngIf="isEditing && message === selectedMessage" class="message-editor" [formGroup]="editForm">
+        <!-- Inline editor for editing messages -->
+        <div *ngIf="isEditing && message === selectedMessage" class="message-editor" [formGroup]="editForm">
           <!-- Inline editor for editing messages -->
           <input type="text" formControlName="content" [(ngModel)]="selectedMessage.content"
-            style="box-shadow: none; border: none;" class="form-control form-control-lg border-bottom bg-light" (keydown.enter)="editMessage(message)">
-            <div *ngIf="editForm.get('content')?.hasError('required')" class="text-danger mb-2">
-              Content is required.
-            </div>
+            style="box-shadow: none; border: none" class="form-control form-control-lg border-bottom bg-light"
+            (keydown.enter)="editMessage(message)" />
+          <div *ngIf="editForm.get('content')?.hasError('required')" class="text-danger mb-2">
+            Content is required.
+          </div>
           <div class="editor-buttons">
-            <button class="btn btn-primary me-sm-2" (click)="editMessage(message)" [disabled]="editForm.invalid">Save</button>
-            <button class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+            <button class="btn btn-primary me-sm-2" (click)="editMessage(message)" [disabled]="editForm.invalid">
+              Save
+            </button>
+            <button class="btn btn-secondary" (click)="cancelEdit()">
+              Cancel
+            </button>
           </div>
         </div>
       </ng-container>
     </div>
-    <div class="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
+    <div class="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2" style="position: relative">
       <div class="user-avatar fw-bold">
         {{ getInitials(loggedInUserName) }}
       </div>
       <input type="text" [(ngModel)]="newMessageContent" class="form-control form-control-lg border-bottom bg-white"
-        placeholder="Send message. . ." style="box-shadow: none; border: none;" (keydown.enter)="sendMessage()">
+        placeholder="Send message or choose an emoji. . ." style="box-shadow: none; border: none"
+        (keydown.enter)="sendMessage()" />
+
+      <!-- Click on Emoji to open Emoji Picker -->
+      <a id="emojiPickerButton" class="ms-3" (click)="openEmojiPicker()">
+        <img src="assets/images/smile-icon.svg" width="22" height="22" alt="Emoji" />
+      </a>
       <a class="ms-3" (click)="sendMessage()"><i class="fa fa-paper-plane"></i></a>
+
+      <!-- Display the Emoji Picker -->
+      <div #emojiPickerContainer class="emoji-picker-container" *ngIf="isEmojiPickerVisible"
+        style="position: absolute; top: -630%; right: 0">
+        <emoji-mart (emojiSelect)="addEmoji($event)" title="Choose your emoji"></emoji-mart>
+      </div>
     </div>
   </div>
 </div>
