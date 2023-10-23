@@ -145,3 +145,7 @@
   font-size: 12px;
   float: inline-end;
 }
+
+.emoji-gif-picker-container {
+  position: absolute; top: -630%; right: 0
+}

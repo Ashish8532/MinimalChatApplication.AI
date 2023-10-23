@@ -1,0 +1,31 @@
+<div class="gif-panel">
+    <div class="gif-container rounded-2">
+        <div class="border-bottom justify-content-between align-items-center p-3">
+          <div class="col-12 d-flex">
+            <div class="col-8 me-sm-4">
+                <div class="input-group rounded">
+                    <input type="search" class="form-control bg-light rounded" [(ngModel)]="searchGif" placeholder="Search for Gif. . ." aria-label="Search"
+                      aria-describedby="search-addon" (keydown.enter)="onSearch()"/>
+                    <span class="input-group-text border-0" id="search-addon">
+                      <i class="fa fa-search" (click)="onSearch()"></i>
+                    </span>
+                  </div>
+              </div>
+              <div class="col-4 float-end">
+                <button type="button" class="btn btn-primary" data-mdb-ripple-color="dark" (click)="getGifs()">Tranding</button>
+              </div>
+          </div>
+          
+        </div>
+        <div class="gif-body scroll-container mt-2" data-mdb-perfect-scrollbar="true">
+    
+            <div class="row">
+                <div class="col-4 gifs" *ngFor="let gif of gifs">
+                  <div >
+                    <img [src]="gif.images.downsized.url" alt="Image" class="img-fluid gif-image">
+                  </div>
+                </div>
+              </div>
+        </div>
+      </div>
+</div>

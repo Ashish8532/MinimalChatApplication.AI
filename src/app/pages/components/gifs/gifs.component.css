@@ -1,0 +1,30 @@
+.gif-panel {
+    position: absolute; 
+    top: -630%; 
+    right: 0;
+    width: 358px;
+    height: 320px;
+    
+}
+.gif-container {
+    width: fit-content;
+    height: fit-content;
+    padding: 10px;
+    background: rgb(43, 43, 43);
+    justify-content: center;
+}
+.gif-body {
+    width: 358px;
+    height: 320px;
+}
+.gifs {
+    padding: 0;
+}
+.gif-image {
+    width: 126px;
+    height: 167px;
+}
+
+.scroll-container::-webkit-scrollbar {
+    width: 5px; /* Adjust the width as needed */
+  }

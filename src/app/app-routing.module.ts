@@ -8,6 +8,7 @@ import { authGuard } from './pages/guard/auth.guard';
 import { RequestLogComponent } from './pages/components/request-log/request-log.component';
 import { loggedInAuthGuard } from './pages/guard/logged-in-auth.guard';
 import { HomeComponent } from './pages/components/home/home.component';
+import { GifsComponent } from './pages/components/gifs/gifs.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -21,6 +22,7 @@ const routes: Routes = [
     ], canActivate: [authGuard]
   },
   { path: 'logs', component: RequestLogComponent, canActivate: [authGuard] },
+  { path: 'gif', component: GifsComponent }
 ];
 
 @NgModule({
