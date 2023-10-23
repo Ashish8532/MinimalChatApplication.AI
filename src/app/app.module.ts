@@ -20,6 +20,7 @@ import { GoogleLoginProvider, GoogleSigninButtonModule, SocialAuthServiceConfig,
 import { TokenInterceptor } from './shared/Interceptor/token.interceptor';
 import { HomeComponent } from './pages/components/home/home.component';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
+import { GifsComponent } from './pages/components/gifs/gifs.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { PickerModule } from '@ctrl/ngx-emoji-mart';
     ConversationHistoryComponent,
     ChatComponent,
     RequestLogComponent,
-    HomeComponent
+    HomeComponent,
+    GifsComponent
   ],
   imports: [
     BrowserModule,

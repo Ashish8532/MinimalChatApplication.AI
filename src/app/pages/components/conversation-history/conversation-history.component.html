@@ -85,9 +85,17 @@
       <div class="user-avatar fw-bold">
         {{ getInitials(loggedInUserName) }}
       </div>
+      
       <input type="text" [(ngModel)]="newMessageContent" class="form-control form-control-lg border-bottom bg-white"
         placeholder="Send message or choose an emoji. . ." style="box-shadow: none; border: none"
         (keydown.enter)="sendMessage()" />
+
+      <!-- Select Gif and send Gif -->
+      <div>
+        <a class="ms-3 text-dark" (click)="openGifPicker()">Gif</a>
+        <app-gifs *ngIf="isGifPickerVisible"></app-gifs>
+      </div>
+
 
       <!-- Click on Emoji to open Emoji Picker -->
       <a id="emojiPickerButton" class="ms-3" (click)="openEmojiPicker()">
@@ -96,8 +104,7 @@
       <a class="ms-3" (click)="sendMessage()"><i class="fa fa-paper-plane"></i></a>
 
       <!-- Display the Emoji Picker -->
-      <div #emojiPickerContainer class="emoji-picker-container" *ngIf="isEmojiPickerVisible"
-        style="position: absolute; top: -630%; right: 0">
+      <div #emojiPickerContainer class="emoji-gif-picker-container" *ngIf="isEmojiPickerVisible">
         <emoji-mart (emojiSelect)="addEmoji($event)" title="Choose your emoji"></emoji-mart>
       </div>
     </div>

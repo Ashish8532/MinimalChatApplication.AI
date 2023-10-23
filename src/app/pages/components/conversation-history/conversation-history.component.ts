@@ -53,6 +53,9 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   isEmojiPickerVisible: boolean = false;
   selectedEmoji: string = '';
 
+  // Gif Picker and select GIF
+  isGifPickerVisible: boolean = false;
+
   /**
    * Constructor of the ConversationHistoryComponent class.
    * - Initializes the component with required services and dependencies.
@@ -528,9 +531,11 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
    * based on the current state.
    */
   openEmojiPicker() {
+    if (this.isGifPickerVisible) {
+      this.isGifPickerVisible = false;
+    }
     this.isEmojiPickerVisible = !this.isEmojiPickerVisible;
   }
-  
 
   /**
    * Adds a selected emoji to the message content.
@@ -543,5 +548,16 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   addEmoji(emoji: any) {
     this.selectedEmoji = emoji.emoji.native;
     this.newMessageContent += this.selectedEmoji;
+  }
+
+  /**
+   * Toggles the visibility of the GIF picker.
+   * Closes the emoji picker if it's open.
+   */
+  openGifPicker() {
+    if (this.isEmojiPickerVisible) {
+      this.isEmojiPickerVisible = false;
+    }
+    this.isGifPickerVisible = !this.isGifPickerVisible;
   }
 }

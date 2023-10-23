@@ -139,7 +139,7 @@ small {
 
 /* Hide the default scrollbar */
 .scroll-container::-webkit-scrollbar {
-    width: 2px; /* Adjust the width as needed */
+    width: 3px; /* Adjust the width as needed */
   }
   
   /* Style the scrollbar track */
