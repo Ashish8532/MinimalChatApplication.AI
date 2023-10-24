@@ -114,12 +114,12 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.5rem; /* Adjust the size as needed */
-  color: #333; /* Color of the close icon */
+  font-size: 1.5rem; 
+  color: #333; 
 }
 
 .close:hover {
-  color: #ff0000; /* Change color on hover if desired */
+  color: #ff0000; 
 }
 
 
@@ -146,6 +146,91 @@
   float: inline-end;
 }
 
-.emoji-gif-picker-container {
-  position: absolute; top: -630%; right: 0
+
+
+/* Css for GIF preview popup */
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  text-align: center;
+}
+.close-svg {
+  margin-left: 280px;
+}
+
+.close-svg:hover {
+  color: #ff0000; /* Change color on hover if desired */
+}
+
+.modal-content input {
+  width: 100%; 
+  max-width: 400px; 
+  margin-bottom: 10px;
+  padding: 9px;
+  height: 38px;
+  animation-name: modalFadeIn;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes modalFadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.modal-content.ng-leave {
+  animation-name: modalFadeOut;
+}
+
+.button {
+   width: 80%;
+  margin-bottom: 15px; 
+  padding: 10px;
+  background-color: #26A700;
+  color: #ffffff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease; 
+}
+
+.modal:not(:active) {
+  background-color: rgba(0, 0, 128, 0.5);/* Change to your desired background color */
 }

@@ -6,21 +6,16 @@
     </div>
     <div class="user-info">
       <p class="fw-bold mb-0">{{ userName }}</p>
-      <small class="h6 text-danger fw-bold" *ngIf="IsActive">online</small>
+      <small class="h6 text-warning fw-bold" *ngIf="IsActive">online</small>
       <small class="h6 text-danger fw-bold" *ngIf="!IsActive">offline</small>
     </div>
   </div>
-  <div class="p-2 rounded">
-    <div class="scroll-container pt-3 pe-3" data-mdb-perfect-scrollbar="true"
-      (scroll)="onScroll()" #scrollContainer>
+  <div class="p-2 pt-1">
+    <div class="scroll-container pe-3" data-mdb-perfect-scrollbar="true" (scroll)="onScroll()" 
+    (click)="hideGifAndEmojiContainer()" #scrollContainer>
       <ng-container *ngFor="let message of conversationHistory; let i = index">
-        <div [class.editing]="isEditing && message === selectedMessage"
-          (contextmenu)="showContextMenu($event, message)">
-          <ng-container *ngIf="
-              i === 0 ||
-              formatDate(conversationHistory[i - 1].timestamp) !==
-                formatDate(message.timestamp)
-            ">
+        <div [class.editing]="isEditing && message === selectedMessage" (contextmenu)="showContextMenu($event, message)">
+          <ng-container *ngIf="i === 0 || formatDate(conversationHistory[i - 1].timestamp) !== formatDate(message.timestamp)">
             <div class="text-center mb-3">
               <div class="date-cluster border d-inline-block text-dark">
                 {{ formatDate(message.timestamp) }}
@@ -31,7 +26,12 @@
           <!-- Display the receiver's message -->
           <div class="d-flex flex-row justify-content-start" *ngIf="message.senderId === userId">
             <div class="content-receiver p-2 mb-4">
-              <p class="mb-0">{{ message.content }}</p>
+              <!-- Display the GIF image if gifUrl exists in the response -->
+              <p *ngIf="message.gifUrl"><img [src]="message.gifUrl" alt="GIF" class="img-fluid rounded-2" width="180"
+                  height="150" /></p>
+
+              <!-- Display the text content if content exists in the response -->
+              <p *ngIf="message.content" class="mb-1">{{ message.content }}</p>
               <small class="timestamp text-muted">{{ formatTime(message.timestamp) }}</small>
             </div>
           </div>
@@ -40,15 +40,24 @@
           <!-- Display the sender's message -->
           <div class="d-flex flex-row justify-content-end" *ngIf="message.receiverId === userId">
             <div class="content-sender p-2 mb-4 bg-primary" style="position: relative;">
-              <p class="text-white mb-1">{{ message.content }}</p>
+
+              <!-- Display the GIF image if gifUrl exists in the response -->
+              <p *ngIf="message.gifUrl"><img [src]="message.gifUrl" alt="GIF" class="img-fluid rounded-2" width="180"
+                  height="150" /></p>
+
+              <!-- Display the text content if content exists in the response -->
+              <p *ngIf="message.content" class="text-white mb-1">{{ message.content }}</p>
+
               <small class="timestamp text-white">{{ formatTime(message.timestamp) }}</small>
               <div *ngIf="isContextMenuVisible && message === selectedMessage && message.senderId !== userId"
-                   class="context-menu d-flex p-2 rounded-3">
+                class="context-menu d-flex p-2 rounded-3">
                 <div>
-                  <a class="btn btn-success me-sm-2" (click)="editMessageTextBox(selectedMessage)"><i class="bi bi-pencil-square"></i></a>
+                  <a class="btn btn-success me-sm-2" (click)="editMessageTextBox(selectedMessage)"><i
+                      class="bi bi-pencil-square"></i></a>
                 </div>
                 <div>
-                  <a class="btn btn-danger me-sm-2" (click)="confirmDelete(message.id)"><i class="bi bi-trash-fill"></i></a>
+                  <a class="btn btn-danger me-sm-2" (click)="confirmDelete(message.id)"><i
+                      class="bi bi-trash-fill"></i></a>
                 </div>
                 <div>
                   <button type="button" class="close" aria-label="Close" (click)="hideContextMenu()">
@@ -58,7 +67,6 @@
               </div>
             </div>
           </div>
-          
         </div>
 
         <!-- Inline editor for editing messages -->
@@ -81,19 +89,49 @@
         </div>
       </ng-container>
     </div>
-    <div class="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2" style="position: relative">
-      <div class="user-avatar fw-bold">
+    <div class="text-muted d-flex justify-content-start align-items-center pe-3" style="position: relative">
+      <div class="user-avatar fw-bold p-2">
         {{ getInitials(loggedInUserName) }}
       </div>
-      
+
       <input type="text" [(ngModel)]="newMessageContent" class="form-control form-control-lg border-bottom bg-white"
-        placeholder="Send message or choose an emoji. . ." style="box-shadow: none; border: none"
-        (keydown.enter)="sendMessage()" />
+        placeholder="Send message or emoji. . ." style="box-shadow: none; border: none" (keydown.enter)="sendMessage()"
+        (click)="hideGifAndEmojiContainer()" />
+
+      <!-- Selected Gif Popup Preview to send Gif -->
+      <div class="modal" *ngIf="isPopupOpen">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="close-svg">
+              <svg (click)="closePopup()" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                class="bi bi-x-circle" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                <path
+                  d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+              </svg>
+            </div>
+            <div class="modal-header">
+              <h2 class="modal-title">Send GIF</h2>
+            </div>
+            <div class="modal-body">
+              <img [src]="selectedGif" alt="Selected GIF" class="img-fluid rounded-2 mb-2" width="250" height="200"
+                *ngIf="selectedGif">
+              <br>
+              <div class="d-flex">
+                <input type="text" [(ngModel)]="newMessageContent"
+                  class="form-control border-bottom form-control-lg bg-white" placeholder="Add a caption..."
+                  style="box-shadow: none;" (keydown.enter)="sendMessage()" />
+                <a class="ms-3 mt-3" (click)="sendMessage()"><i class="fa fa-paper-plane"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Select Gif and send Gif -->
       <div>
         <a class="ms-3 text-dark" (click)="openGifPicker()">Gif</a>
-        <app-gifs *ngIf="isGifPickerVisible"></app-gifs>
+        <app-gifs *ngIf="isGifPickerVisible" (gifSelected)="onGifSelected($event)"></app-gifs>
       </div>
 
 
@@ -104,8 +142,8 @@
       <a class="ms-3" (click)="sendMessage()"><i class="fa fa-paper-plane"></i></a>
 
       <!-- Display the Emoji Picker -->
-      <div #emojiPickerContainer class="emoji-gif-picker-container" *ngIf="isEmojiPickerVisible">
-        <emoji-mart (emojiSelect)="addEmoji($event)" title="Choose your emoji"></emoji-mart>
+      <div *ngIf="isEmojiPickerVisible">
+        <emoji-mart (emojiSelect)="addEmoji($event)" title="Choose your emoji" [style]="{ position: 'absolute', bottom: '50px', right: '-10px' }"></emoji-mart>
       </div>
     </div>
   </div>
