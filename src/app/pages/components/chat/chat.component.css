@@ -1,3 +1,8 @@
+#chat3 {
+  border-radius: 15px; 
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
 #chat3 .form-control {
     border-color: transparent;
 }

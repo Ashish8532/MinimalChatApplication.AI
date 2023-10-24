@@ -1,9 +1,9 @@
 .gif-panel {
     position: absolute; 
-    top: -630%; 
-    right: 0;
-    width: 358px;
-    height: 320px;
+    top: -790%; 
+    right: 12px;
+    width: 300px;
+    height: 280px;
     
 }
 .gif-container {
@@ -14,17 +14,23 @@
     justify-content: center;
 }
 .gif-body {
-    width: 358px;
-    height: 320px;
+    width: 300px;
+    height: 280px;
 }
 .gifs {
     padding: 0;
 }
 .gif-image {
     width: 126px;
-    height: 167px;
+    height: 120px;
 }
 
 .scroll-container::-webkit-scrollbar {
     width: 5px; /* Adjust the width as needed */
   }
+
+.search-input, .input-group-text {
+    box-shadow: none; 
+    border: none;
+    border-radius: 5px 5px 5px 5px;
+}

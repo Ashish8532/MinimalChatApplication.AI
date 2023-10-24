@@ -56,6 +56,10 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   // Gif Picker and select GIF
   isGifPickerVisible: boolean = false;
 
+  // GIF Preview to send Gif
+  isPopupOpen: boolean = false;
+  selectedGif: any;
+
   /**
    * Constructor of the ConversationHistoryComponent class.
    * - Initializes the component with required services and dependencies.
@@ -73,7 +77,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     private fb: FormBuilder,
     private authService: AuthService,
     private signalRService: SignalRService
-  ) {}
+  ) { }
 
   /**
    * Initializes the component.
@@ -302,21 +306,24 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Angular lifecycle hook called when input properties change.
-   * - Resets the conversation history when the userId changes (new user selected).
-   * - Fetches the conversation history for the new userId.
-   *
-   * @param changes - The changed properties.
-   */
-  ngOnChanges(changes: SimpleChanges) {
-    // Reset the conversation history when userId changes (new user selected)
-    if (changes['userId'] && !changes['userId'].firstChange) {
-      this.conversationHistory = [];
-      if (this.userId) {
-        this.fetchConversationHistory(this.userId);
-      }
+ * Angular lifecycle hook called when input properties change.
+ * - Resets the conversation history when userId changes (new user selected).
+ * - Fetches the conversation history for the new userId.
+ * - Hides the GIF picker and Emoji picker when userId changes.
+ *
+ * @param changes - The changed properties.
+ */
+ngOnChanges(changes: SimpleChanges) {
+  if (changes['userId'] && !changes['userId'].firstChange) {
+    this.conversationHistory = [];
+    this.isGifPickerVisible = false; 
+    this.isEmojiPickerVisible = false; 
+    if (this.userId) {
+      this.fetchConversationHistory(this.userId);
     }
   }
+}
+
 
   /**
    * Method to get initials from a user's name.
@@ -334,26 +341,32 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Sends a new message.
-   * - Validates the message content to ensure it is not empty.
-   * - Creates a message object with the receiver's ID and content.
-   * - Calls the message service to send the message.
-   * - Updates the conversation history with the sent message, scrolls to the bottom, and displays a success toast.
-   * - Clears the input for new messages after a successful send.
-   *
-   * @remarks
-   * This method handles the process of sending a new message, including content validation, service call,
-   * updating the conversation history, scrolling to the bottom, and displaying a success toast. It also manages
-   * the UI state by clearing the input for new messages after a successful send.
-   */
+  * Sends a new message.
+  * - Validates the message content to ensure it is not empty.
+  * - Creates a message object with the receiver's ID and content.
+  * - Calls the message service to send the message.
+  * - Updates the conversation history with the sent message, scrolls to the bottom, and displays a success toast.
+  * - Clears the input for new messages after a successful send.
+  *
+  * @remarks
+  * This method handles the process of sending a new message, including content validation, service call,
+  * updating the conversation history, scrolling to the bottom, and displaying a success toast. It also manages
+  * the UI state by clearing the input for new messages after a successful send.
+  */
   sendMessage() {
-    if (this.newMessageContent.trim() === '') {
+    debugger
+    if (this.newMessageContent.trim() === '' && !this.selectedGif) {
       return;
     }
-    const message = {
+    const message: any = {
       receiverId: this.userId,
       content: this.newMessageContent,
     };
+
+    if (this.selectedGif) {
+      message.gifUrl = this.selectedGif;
+    }
+
     this.messageService.sendMessage(message).subscribe({
       next: (res) => {
         const existingMessage = this.conversationHistory.find(
@@ -364,6 +377,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
           this.isEmojiPickerVisible = false;
           this.scrollToBottom();
         }
+        this.closePopup();
         this.scrollToBottom();
         this.toast.success({
           detail: 'SUCCESS',
@@ -478,7 +492,6 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     }).then((result) => {
       if (result.value) {
         this.deleteMessage(messageId);
-        Swal.fire('Deleted!', 'Your item has been deleted.', 'success');
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire('Cancelled', 'Your item is safe :)', 'error');
       }
@@ -559,5 +572,40 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       this.isEmojiPickerVisible = false;
     }
     this.isGifPickerVisible = !this.isGifPickerVisible;
+  }
+
+
+  /**
+ * Closes the GIF selection popup.
+ * - Clears the selected GIF and closes the popup.
+ */
+  closePopup() {
+    this.selectedGif = null;
+    this.isPopupOpen = false;
+  }
+
+
+  /**
+ * Handles the selection of a GIF from the GIF picker.
+ * - Sets the selected GIF.
+ * - Closes the GIF picker.
+ * - Opens the GIF popup for additional options.
+ *
+ * @param selectedGif - The selected GIF to send.
+ */
+  onGifSelected(selectedGif: any) {
+    this.selectedGif = selectedGif;
+    this.isGifPickerVisible = false;
+    this.isPopupOpen = true;
+  }
+
+
+  /**
+ * Hides the GIF and Emoji pickers.
+ * - Closes both the GIF picker and the Emoji picker.
+ */
+  hideGifAndEmojiContainer() {
+    this.isGifPickerVisible = false;
+    this.isEmojiPickerVisible = false;
   }
 }

@@ -6,61 +6,56 @@
     <span>{{ notificationMessage }}</span>
     <i class="close fa fa-times text-light" (click)="onCloseNotification()"></i>
   </div>
-    <div class="container">
-  
-      <div class="row">
-        <div class="col-md-12">
-  
-          <div class="card" id="chat3" style="border-radius: 15px; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-            <div class="card-body">
-  
-              <div class="row">
-                <div class="col-md-6 col-lg-5 col-xl-4 mb-4 mb-md-0">
-  
-                  <div class="p-3">
-                  <!-- For User List -->
-                  <div class="input-group border-bottom rounded mb-3">
-                    <input type="search" class="form-control bg-light rounded" [(ngModel)]="searchQuery" placeholder="Search Conversation. . ." aria-label="Search"
-                      aria-describedby="search-addon" (keydown.enter)="onSearch()"/>
-                    <span class="input-group-text border-0" id="search-addon">
-                      <i class="fa fa-search" (click)="onSearch()"></i>
-                    </span>
-                  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card" id="chat3">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 col-lg-5 col-xl-4 mb-4 mb-md-0">
+                <!-- For User List -->
+                <div class="input-group border-bottom rounded mb-3">
+                  <input type="search" class="form-control bg-light rounded" [(ngModel)]="searchQuery"
+                    placeholder="Search Conversation. . ." aria-label="Search" aria-describedby="search-addon"
+                    (keydown.enter)="onSearch()" />
+                  <span class="input-group-text border-0" id="search-addon">
+                    <i class="fa fa-search" (click)="onSearch()"></i>
+                  </span>
+                </div>
 
-                  <div class="position-relative" *ngIf="showSearchResult">
-                    <div class="bg-light p-2 rounded scroll-container" data-mdb-perfect-scrollbar="true" >
-                      <!-- Display search results -->
-                      <div class="d-flex flex-row justify-content-start" *ngFor="let result of searchResults">
-                        <div>
-                          <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: rgba(57, 192, 237,.2);">{{ result.content }}</p>
-                          <p class="small ms-3 mb-3 rounded-3 text-muted float-end">{{ result.timestamp | date }}</p>
-                        </div>
+                <!-- Display the searched Conversations -->
+                <div class="position-relative" *ngIf="showSearchResult">
+                  <div class="bg-light p-2 rounded scroll-container" data-mdb-perfect-scrollbar="true">
+                    <div class="d-flex flex-row justify-content-start" *ngFor="let result of searchResults">
+                      <div>
+                        <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: rgba(57, 192, 237,.2);">{{
+                          result.content }}</p>
+                        <p class="small ms-3 mb-3 rounded-3 text-muted float-end">{{ result.timestamp | date }}</p>
                       </div>
                     </div>
-                  
-                    <!-- Floating Button Inside Display SearchResult -->
-                    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3" style="margin-left: 115px;">
-                      <i (click)="onCloseSearch()" class="fa fa-times-circle text-danger bg-light rounded-circle" aria-hidden="true" style="font-size: 50px;"></i>
-                    </div>
                   </div>
-                  
-                  
 
-                  <app-user-list *ngIf="!showSearchResult" (userSelected)="onUserSelected($event)" (showNotification)="onShowNotification($event)"></app-user-list>
+                  <!-- Floating Button Inside Display SearchResult -->
+                  <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3" style="margin-left: 115px;">
+                    <i (click)="onCloseSearch()" class="fa fa-times-circle text-danger bg-light rounded-circle"
+                      aria-hidden="true" style="font-size: 50px;"></i>
                   </div>
-  
                 </div>
-  
-                <div class="col-md-6 col-lg-7 col-xl-8">
-  
-                  <!-- For Conversation History -->
-                  <app-conversation-history [userId]="selectedUserId" [userName]="selectedUserName" *ngIf="selectedUserId"></app-conversation-history>
-  
-                </div>
+
+                <app-user-list *ngIf="!showSearchResult" (userSelected)="onUserSelected($event)"
+                  (showNotification)="onShowNotification($event)"></app-user-list>
+
+              </div>
+
+              <!-- For Conversation History -->
+              <div class="col-md-6 col-lg-7 col-xl-8">
+                <app-conversation-history [userId]="selectedUserId" [userName]="selectedUserName"
+                  *ngIf="selectedUserId"></app-conversation-history>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
