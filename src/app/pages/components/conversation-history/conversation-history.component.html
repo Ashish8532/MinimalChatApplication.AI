@@ -42,22 +42,25 @@
             <div class="content-sender p-2 mb-4 bg-primary" style="position: relative;">
 
               <!-- Display the GIF image if gifUrl exists in the response -->
-              <p *ngIf="message.gifUrl"><img [src]="message.gifUrl" alt="GIF" class="img-fluid rounded-2" width="180"
+              <p *ngIf="message.gifUrl" ><img [src]="message.gifUrl" alt="GIF" class="img-fluid rounded-2" width="180"
                   height="150" /></p>
 
               <!-- Display the text content if content exists in the response -->
               <p *ngIf="message.content" class="text-white mb-1">{{ message.content }}</p>
 
               <small class="timestamp text-white">{{ formatTime(message.timestamp) }}</small>
+
+              <!-- Showing Context menu for edit and delete message -->
               <div *ngIf="isContextMenuVisible && message === selectedMessage && message.senderId !== userId"
                 class="context-menu d-flex p-2 rounded-3">
-                <div>
-                  <a class="btn btn-success me-sm-2" (click)="editMessageTextBox(selectedMessage)"><i
-                      class="bi bi-pencil-square"></i></a>
+                <!-- Show delete button only for GIFs -->
+                <div *ngIf="message.gifUrl"> 
+                  <a class="btn btn-danger me-sm-2" (click)="confirmDelete(message.id)"><i class="bi bi-trash-fill"></i></a>
                 </div>
-                <div>
-                  <a class="btn btn-danger me-sm-2" (click)="confirmDelete(message.id)"><i
-                      class="bi bi-trash-fill"></i></a>
+                <!-- Show both edit and delete buttons for other text messages -->
+                <div *ngIf="!message.gifUrl" class="d-flex"> 
+                  <a class="btn btn-success me-sm-2" (click)="editMessageTextBox(selectedMessage)"><i class="bi bi-pencil-square"></i></a>
+                  <a class="btn btn-danger me-sm-2" (click)="confirmDelete(message.id)"><i class="bi bi-trash-fill"></i></a>
                 </div>
                 <div>
                   <button type="button" class="close" aria-label="Close" (click)="hideContextMenu()">
@@ -70,7 +73,7 @@
         </div>
 
         <!-- Inline editor for editing messages -->
-        <div *ngIf="isEditing && message === selectedMessage" class="message-editor" [formGroup]="editForm">
+        <div *ngIf="isEditing && message === selectedMessage" class="message-editor" [formGroup]="editForm" style="position: absolute; z-index: 1000;">
           <!-- Inline editor for editing messages -->
           <input type="text" formControlName="content" [(ngModel)]="selectedMessage.content"
             style="box-shadow: none; border: none" class="form-control form-control-lg border-bottom bg-light"

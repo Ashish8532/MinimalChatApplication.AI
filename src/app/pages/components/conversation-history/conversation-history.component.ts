@@ -385,7 +385,6 @@ ngOnChanges(changes: SimpleChanges) {
           duration: 3000,
         });
         this.newMessageContent = '';
-        this.scrollToBottom();
       },
     });
   }
@@ -425,7 +424,6 @@ ngOnChanges(changes: SimpleChanges) {
     this.selectedMessage = message;
     this.isContextMenuVisible = false;
     this.isEditing = true;
-    this.scrollToBottom();
   }
 
   /**
@@ -482,6 +480,7 @@ ngOnChanges(changes: SimpleChanges) {
    * @param messageId - The ID of the message to be deleted.
    */
   confirmDelete(messageId: number) {
+    this.isContextMenuVisible = false;
     Swal.fire({
       title: 'Are you sure?',
       text: 'You will not be able to recover this item!',
