@@ -21,6 +21,7 @@ import { TokenInterceptor } from './shared/Interceptor/token.interceptor';
 import { HomeComponent } from './pages/components/home/home.component';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { GifsComponent } from './pages/components/gifs/gifs.component';
+import { UserProfileComponent } from './pages/components/user-profile/user-profile.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { GifsComponent } from './pages/components/gifs/gifs.component';
     ChatComponent,
     RequestLogComponent,
     HomeComponent,
-    GifsComponent
+    GifsComponent,
+    UserProfileComponent
   ],
   imports: [
     BrowserModule,
