@@ -2,6 +2,10 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgToastService } from 'ng-angular-popup';
 import { Observable, catchError, throwError } from 'rxjs';
+import { UserProfile } from '../models/user-profile';
+import { ApiResponse } from '../models/api-response';
+import { UpdateProfile } from '../models/update-profile';
+import { UserChatResponse } from '../models/user-chat-response';
 
 /**
  * Service for managing user-related API calls.
@@ -12,7 +16,7 @@ import { Observable, catchError, throwError } from 'rxjs';
 export class UserService {
 
   // Base URL for the user-related API endpoint.
-  private baseUrl: string = "https://localhost:44394/api/user";
+  private baseUrl: string = "https://localhost:44394/api";
   constructor(private http: HttpClient, private toast: NgToastService) { }
 
 
@@ -34,12 +38,53 @@ export class UserService {
   }
 
 
-  /**
-   * Retrieves the list of users from the API.
-   * @returns An observable of the HTTP response with user data.
-   */
-  getUserList() {
-    return this.http.get<any>(this.baseUrl, {}).pipe(
+ /**
+ * Retrieves the list of users from the API.
+ *
+ * This function sends an HTTP GET request to fetch the list of users from the API endpoint.
+ * It returns an observable of the `ApiResponse` containing an array of `UserChatResponse` data.
+ *
+ * @returns An observable of the HTTP response with user chat data.
+ */
+  getUserList(): Observable<ApiResponse<UserChatResponse[]>> {
+    const url = `${this.baseUrl}/user`;
+
+    return this.http.get<ApiResponse<UserChatResponse[]>>(url, {}).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
+  }
+
+
+  /**
+ * Gets the user's profile details.
+ *
+ * This function sends an HTTP GET request to retrieve the user's profile details from the API.
+ * It returns an observable of the `ApiResponse` containing the user's profile information.
+ *
+ * @returns An observable of the `ApiResponse` containing the user's profile details.
+ */
+  getProfileDetails(): Observable<ApiResponse<UserProfile>> {
+    const profileUrl = `${this.baseUrl}/profile-details`;
+    
+    return this.http.get<ApiResponse<UserProfile>>(profileUrl).pipe(
+      catchError((error: HttpErrorResponse) => this.handleApiError(error))
+    );
+  }
+
+
+  /**
+ * Updates the user's profile.
+ *
+ * This function sends an HTTP PUT request to update the user's profile with the provided data.
+ * It returns an observable of the `ApiResponse` containing the updated profile information.
+ *
+ * @param updateProfile - The data for updating the user's profile.
+ * @returns An observable of the `ApiResponse` containing the updated profile details.
+ */
+  updateProfile(updateProfile: UpdateProfile): Observable<ApiResponse<UpdateProfile>> {
+    const updateProfileUrl = `${this.baseUrl}/update-profile`;
+    
+    return this.http.put<ApiResponse<UpdateProfile>>(updateProfileUrl, updateProfile).pipe(
+      catchError((error: HttpErrorResponse) => this.handleApiError(error))
+    );
   }
 }

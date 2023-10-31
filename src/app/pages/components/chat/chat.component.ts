@@ -15,6 +15,7 @@ import { NgToastService } from 'ng-angular-popup';
 export class ChatComponent {
   selectedUserId: string | null = null; // ID of the selected user
   selectedUserName: string = ''; // Name of the selected user
+  statusMessage: string = ''; // Status message of user
 
   searchQuery: string = ''; // Query for searching conversations
   searchResults: any[] = []; // Search results
@@ -47,13 +48,15 @@ export class ChatComponent {
 
 
   /**
-   * Method to handle user selection from the UserListComponent.
-   * - Navigates to the conversation history route with the user's ID.
-   * @param userSelection - An object containing the selected user's ID and name.
-   */
-  onUserSelected(userSelection: { userId: string, userName: string }) {
+ * Handles user selection from the UserListComponent.
+ * - Sets the selected user's ID, name, and status message.
+ * - Navigates to the conversation history route with the user's ID.
+ * @param userSelection - An object containing the selected user's ID, name, and status message.
+ */
+  onUserSelected(userSelection: { userId: string, userName: string, statusMessage: string}) {
     this.selectedUserId = userSelection.userId;
     this.selectedUserName = userSelection.userName;
+    this.statusMessage = userSelection.statusMessage;
     this.router.navigate(['/chat/user', userSelection.userId]);
   }
 

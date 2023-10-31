@@ -30,6 +30,9 @@
             </div>
             <div class="d-flex align-items-center" *ngIf="isLoggedIn()">
               <div class="me-2 d-flex me-sm-2">
+                <div class="mt-2 me-sm-4">
+                  <a class="nav-link text-white" routerLink="/profile">Profile</a>
+                </div>
                 <!-- User Initials with Bootstrap styling -->
                 <div class="initials me-2 fw-bold">
                   {{ getInitials(username) }}

@@ -6,8 +6,9 @@
     </div>
     <div class="user-info">
       <p class="fw-bold mb-0">{{ userName }}</p>
-      <small class="h6 text-warning fw-bold" *ngIf="IsActive">online</small>
-      <small class="h6 text-danger fw-bold" *ngIf="!IsActive">offline</small>
+      <small class="h6 fw-bold" [ngClass]="IsActive ? 'text-warning' : 'text-danger'">
+        {{ IsActive ? 'online' : 'offline' }}<span *ngIf="statusMessage != null" class="mx-2 text-light">| {{statusMessage}}</span>
+      </small>
     </div>
   </div>
   <div class="p-2 pt-1">

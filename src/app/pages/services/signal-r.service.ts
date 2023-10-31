@@ -102,4 +102,17 @@ export class SignalRService {
       });
     });
   }
+
+
+  /**
+ * Observable for receiving updated user status message in real-time.
+ * @returns An observable that emits updated status message details.
+ */
+  receiveStatusMessageUpdate$ = (): Observable<{ userId: string, statusMessage: string }> => {
+    return new Observable(observer => {
+      this.hubConnection.on('ReceiveStatusMessageUpdate', (userId: string, statusMessage: string) => {
+        observer.next({ userId, statusMessage });
+      });
+    });
+  }
 }

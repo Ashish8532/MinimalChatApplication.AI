@@ -14,6 +14,7 @@ import Swal from 'sweetalert2';
 import { SignalRService } from '../../services/signal-r.service';
 import { AuthService } from '../../services/auth.service';
 import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 
 /**
  * Component for displaying and managing conversation history.
@@ -29,6 +30,7 @@ import { DatePipe } from '@angular/common';
 export class ConversationHistoryComponent implements OnInit, OnChanges {
   @Input() userId: string = ''; // Input property to receive userId from ChatComponent
   @Input() userName: string = '';
+  @Input() statusMessage: string = '';
   conversationHistory: any = []; // Initialize conversationHistory as an empty array
   isLoadingMoreMessages = false;
   lastScrollTop: number = 0;
@@ -76,8 +78,9 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     private toast: NgToastService,
     private fb: FormBuilder,
     private authService: AuthService,
-    private signalRService: SignalRService
-  ) { }
+    private signalRService: SignalRService,
+    private router: Router
+  ) {}
 
   /**
    * Initializes the component.
@@ -186,6 +189,20 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       next: (data: { isActive: boolean; receiverId: string }) => {
         if (this.userId === data.receiverId) {
           this.IsActive = data.isActive;
+        }
+      },
+    });
+
+    
+    /**
+     * Subscribes to real-time updates for user status message using SignalR.
+     * Updates the current user's status message when a change is received.
+     * @param data - Data containing user ID and updated status message.
+     */
+    this.signalRService.receiveStatusMessageUpdate$().subscribe({
+      next: (data: { userId: string; statusMessage: string }) => {
+        if (this.userId === data.userId) {
+          this.statusMessage = data.statusMessage;
         }
       },
     });
@@ -306,24 +323,23 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
   }
 
   /**
- * Angular lifecycle hook called when input properties change.
- * - Resets the conversation history when userId changes (new user selected).
- * - Fetches the conversation history for the new userId.
- * - Hides the GIF picker and Emoji picker when userId changes.
- *
- * @param changes - The changed properties.
- */
-ngOnChanges(changes: SimpleChanges) {
-  if (changes['userId'] && !changes['userId'].firstChange) {
-    this.conversationHistory = [];
-    this.isGifPickerVisible = false; 
-    this.isEmojiPickerVisible = false; 
-    if (this.userId) {
-      this.fetchConversationHistory(this.userId);
+   * Angular lifecycle hook called when input properties change.
+   * - Resets the conversation history when userId changes (new user selected).
+   * - Fetches the conversation history for the new userId.
+   * - Hides the GIF picker and Emoji picker when userId changes.
+   *
+   * @param changes - The changed properties.
+   */
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['userId'] && !changes['userId'].firstChange) {
+      this.conversationHistory = [];
+      this.isGifPickerVisible = false;
+      this.isEmojiPickerVisible = false;
+      if (this.userId) {
+        this.fetchConversationHistory(this.userId);
+      }
     }
   }
-}
-
 
   /**
    * Method to get initials from a user's name.
@@ -341,20 +357,20 @@ ngOnChanges(changes: SimpleChanges) {
   }
 
   /**
-  * Sends a new message.
-  * - Validates the message content to ensure it is not empty.
-  * - Creates a message object with the receiver's ID and content.
-  * - Calls the message service to send the message.
-  * - Updates the conversation history with the sent message, scrolls to the bottom, and displays a success toast.
-  * - Clears the input for new messages after a successful send.
-  *
-  * @remarks
-  * This method handles the process of sending a new message, including content validation, service call,
-  * updating the conversation history, scrolling to the bottom, and displaying a success toast. It also manages
-  * the UI state by clearing the input for new messages after a successful send.
-  */
+   * Sends a new message.
+   * - Validates the message content to ensure it is not empty.
+   * - Creates a message object with the receiver's ID and content.
+   * - Calls the message service to send the message.
+   * - Updates the conversation history with the sent message, scrolls to the bottom, and displays a success toast.
+   * - Clears the input for new messages after a successful send.
+   *
+   * @remarks
+   * This method handles the process of sending a new message, including content validation, service call,
+   * updating the conversation history, scrolling to the bottom, and displaying a success toast. It also manages
+   * the UI state by clearing the input for new messages after a successful send.
+   */
   sendMessage() {
-    debugger
+    debugger;
     if (this.newMessageContent.trim() === '' && !this.selectedGif) {
       return;
     }
@@ -573,36 +589,33 @@ ngOnChanges(changes: SimpleChanges) {
     this.isGifPickerVisible = !this.isGifPickerVisible;
   }
 
-
   /**
- * Closes the GIF selection popup.
- * - Clears the selected GIF and closes the popup.
- */
+   * Closes the GIF selection popup.
+   * - Clears the selected GIF and closes the popup.
+   */
   closePopup() {
     this.selectedGif = null;
     this.isPopupOpen = false;
   }
 
-
   /**
- * Handles the selection of a GIF from the GIF picker.
- * - Sets the selected GIF.
- * - Closes the GIF picker.
- * - Opens the GIF popup for additional options.
- *
- * @param selectedGif - The selected GIF to send.
- */
+   * Handles the selection of a GIF from the GIF picker.
+   * - Sets the selected GIF.
+   * - Closes the GIF picker.
+   * - Opens the GIF popup for additional options.
+   *
+   * @param selectedGif - The selected GIF to send.
+   */
   onGifSelected(selectedGif: any) {
     this.selectedGif = selectedGif;
     this.isGifPickerVisible = false;
     this.isPopupOpen = true;
   }
 
-
   /**
- * Hides the GIF and Emoji pickers.
- * - Closes both the GIF picker and the Emoji picker.
- */
+   * Hides the GIF and Emoji pickers.
+   * - Closes both the GIF picker and the Emoji picker.
+   */
   hideGifAndEmojiContainer() {
     this.isGifPickerVisible = false;
     this.isEmojiPickerVisible = false;
