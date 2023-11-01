@@ -2,6 +2,8 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Injectable } from '@angular/core';
 import { NgToastService } from 'ng-angular-popup';
 import { Observable, catchError, throwError } from 'rxjs';
+import { ApiResponse } from '../models/api-response';
+import { Log } from '../models/log';
 
 /**
  * Service for handling requests related to log history.
@@ -39,13 +41,17 @@ export class RequestLogService {
   }
 
 
-  /**
-   * Gets logs within a specified time range.
-   * @param startTime - The start time for the log query.
-   * @param endTime - The end time for the log query.
-   * @returns An Observable with the logs or an error.
-   */
-  getLogs(startTime?: string, endTime?: string): Observable<any> {
+ /**
+ * Retrieves logs within a specified time range.
+ * - Accepts optional `startTime` and `endTime` parameters to define the time range for the log query.
+ * - Calls the API to fetch logs with the specified time range.
+ * - Returns an Observable with the logs or an error in case of failure.
+ *
+ * @param startTime - The start time for the log query.
+ * @param endTime - The end time for the log query.
+ * @returns An Observable with the logs or an error.
+ */
+  getLogs(startTime?: string, endTime?: string): Observable<ApiResponse<Log[]>> {
     let params = new HttpParams();
     if (startTime) {
       params = params.set('startTime', startTime);
@@ -54,7 +60,7 @@ export class RequestLogService {
       params = params.set('endTime', endTime);
     }
 
-    return this.http.get(this.baseUrl, { params }).pipe(
+    return this.http.get<ApiResponse<Log[]>>(this.baseUrl, { params }).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 }

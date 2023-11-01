@@ -8,6 +8,11 @@ import NoSpaceAllowed from 'src/app/shared/helpers/nospace-allowed';
 import ValidatePassword from 'src/app/shared/helpers/validate-password';
 import ValidateForm from 'src/app/shared/helpers/validate-forms';
 import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
+import { ApiResponse } from '../../models/api-response';
+import { UserProfile } from '../../models/user-profile';
+import { Register } from '../../models/register';
+import { TokenResponse } from '../../models/token-response';
+import { UserResponse } from '../../models/user-response';
 
 // Constant for the name pattern
 const NAME_PATTERN = '^[A-Za-z ]+$';
@@ -58,8 +63,10 @@ export class RegisterComponent {
       if (user) {
         this.authService.googleSignIn(user.idToken.toString()).subscribe(
           {
-            next: (res) => {
-              this.authService.storeToken(res.jwtToken);
+            next: (res: TokenResponse<UserResponse>) => {
+              localStorage.clear();
+              this.authService.storeToken(res.accessToken);
+              this.authService.storeRefreshToken(res.refreshToken);
               this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
               this.router.navigate(['chat']);
             }
@@ -99,17 +106,22 @@ export class RegisterComponent {
     this.isText ? this.type = "text" : this.type = "password";
   }
 
-  /**
-   * Handles the registration process.
-   * - Validates the registration form.
-   *   - If valid, sends a registration request to the authentication service.
-   *   - If successful, resets the form, displays a success toast, and navigates to the login page.
-   *   - If the form is not valid, marks all form fields as touched and displays an error toast.
-   */
+ /**
+ * Handles the user registration process.
+ * - Validates the registration form.
+ *   - If the form is valid, sends a registration request to the authentication service.
+ *   - Upon successful registration, resets the form, displays a success toast, and navigates to the login page.
+ *   - If the form is not valid, marks all form fields as touched and displays an error toast.
+ */
   onRegister() {
     if (this.registerForm.valid) {
-      this.authService.register(this.registerForm.value).subscribe({
-        next: (res) => {
+      const registerData: Register = {
+        email: this.registerForm.get('email')?.value,
+        name: this.registerForm.get('name')?.value,
+        password: this.registerForm.get('password')?.value,
+      };
+      this.authService.register(registerData).subscribe({
+        next: (res: ApiResponse<UserProfile>) => {
           this.registerForm.reset();
           this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
           this.router.navigate(['login']);

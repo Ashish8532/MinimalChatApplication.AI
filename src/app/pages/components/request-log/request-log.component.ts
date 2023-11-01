@@ -3,6 +3,8 @@ import { RequestLogService } from '../../services/request-log.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { NgToastService } from 'ng-angular-popup';
+import { ApiResponse } from '../../models/api-response';
+import { Log } from '../../models/log';
 
 /**
  * Component representing the Request Log feature.
@@ -16,7 +18,7 @@ import { NgToastService } from 'ng-angular-popup';
   styleUrls: ['./request-log.component.css']
 })
 export class RequestLogComponent implements OnInit {
-  logs: any[] = []; // Array to store retrieved logs
+  logs: Log[] = []; // Array to store retrieved logs
   startTime?: string | null; // Start time for log retrieval
   endTime?: string | null; // End time for log retrieval
 
@@ -120,11 +122,15 @@ export class RequestLogComponent implements OnInit {
  * - For predefined options ('5', '10', '30'), calculates the start time relative to the current timestamp.
  * - For the 'custom' option, custom handling can be added using the property `this.customTime`.
  * - Invokes the `fetchLogs` method to retrieve logs with the updated time range.
+ *
+ * @remarks
+ * This method retrieves logs based on the selected time range, updating the start time accordingly.
+ * It also calculates the number of logs to display on the current page and provides success feedback using a toast notification.
  */
   fetchLogs(): void {
     if (this.startTime && this.endTime) {
       this.logService.getLogs(this.startTime, this.endTime).subscribe({
-        next: (logs: any) => {
+        next: (logs: ApiResponse<Log[]>) => {
           this.totalItems = logs.data.length;
 
           const startIndex = (this.currentPage - 1) * this.itemsPerPage;

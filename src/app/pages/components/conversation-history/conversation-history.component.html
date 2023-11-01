@@ -40,7 +40,7 @@
 
           <!-- Display the sender's message -->
           <div class="d-flex flex-row justify-content-end" *ngIf="message.receiverId === userId">
-            <div class="content-sender p-2 mb-4 bg-primary" style="position: relative;">
+            <div class="content-sender p-2 mb-4 bg-primary">
 
               <!-- Display the GIF image if gifUrl exists in the response -->
               <p *ngIf="message.gifUrl" ><img [src]="message.gifUrl" alt="GIF" class="img-fluid rounded-2" width="180"
@@ -74,7 +74,7 @@
         </div>
 
         <!-- Inline editor for editing messages -->
-        <div *ngIf="isEditing && message === selectedMessage" class="message-editor" [formGroup]="editForm" style="position: absolute; z-index: 1000;">
+        <div *ngIf="isEditing && message === selectedMessage" class="message-editor" [formGroup]="editForm">
           <!-- Inline editor for editing messages -->
           <input type="text" formControlName="content" [(ngModel)]="selectedMessage.content"
             style="box-shadow: none; border: none" class="form-control form-control-lg border-bottom bg-light"
@@ -93,13 +93,13 @@
         </div>
       </ng-container>
     </div>
-    <div class="text-muted d-flex justify-content-start align-items-center pe-3" style="position: relative">
+    <div class="send-box text-muted d-flex justify-content-start align-items-center pe-3">
       <div class="user-avatar fw-bold p-2">
         {{ getInitials(loggedInUserName) }}
       </div>
 
-      <input type="text" [(ngModel)]="newMessageContent" class="form-control form-control-lg border-bottom bg-white"
-        placeholder="Send message or emoji. . ." style="box-shadow: none; border: none" (keydown.enter)="sendMessage()"
+      <input type="text" [(ngModel)]="newMessageContent" class="input-box form-control form-control-lg border-bottom bg-white"
+        placeholder="Send message or emoji. . ." (keydown.enter)="sendMessage()"
         (click)="hideGifAndEmojiContainer()" />
 
       <!-- Selected Gif Popup Preview to send Gif -->
@@ -123,8 +123,8 @@
               <br>
               <div class="d-flex">
                 <input type="text" [(ngModel)]="newMessageContent"
-                  class="form-control border-bottom form-control-lg bg-white" placeholder="Add a caption..."
-                  style="box-shadow: none;" (keydown.enter)="sendMessage()" />
+                  class="input-box form-control border-bottom form-control-lg bg-white" placeholder="Add a caption..."
+                   (keydown.enter)="sendMessage()" />
                 <a class="ms-3 mt-3" (click)="sendMessage()"><i class="fa fa-paper-plane"></i></a>
               </div>
             </div>

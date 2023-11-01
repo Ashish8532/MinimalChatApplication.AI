@@ -52,6 +52,9 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-bottom: 10px;
+  width: 100%;
+  position: absolute; 
+  z-index: 1000;
 }
 
 .message-editor input {
@@ -139,11 +142,21 @@
 
 .content-sender {
   border-radius: 12px 12px 0px 12px;
+  position: relative;
 }
 
 .timestamp {
   font-size: 12px;
   float: inline-end;
+}
+
+.send-box {
+  position: relative;
+}
+
+.input-box {
+  box-shadow: none; 
+  border: none
 }
 
 

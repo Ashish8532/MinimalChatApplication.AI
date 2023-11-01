@@ -1,4 +1,4 @@
-<section style="min-height: 100vh;">
+<section class="section">
 
   <!-- Notification Display -->
   <div *ngIf="notificationMessage" class="notification">
@@ -28,17 +28,17 @@
                   <div class="bg-light p-2 rounded scroll-container" data-mdb-perfect-scrollbar="true">
                     <div class="d-flex flex-row justify-content-start" *ngFor="let result of searchResults">
                       <div>
-                        <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: rgba(57, 192, 237,.2);">{{
+                        <p class="small p-2 ms-3 mb-1 rounded-3">{{
                           result.content }}</p>
-                        <p class="small ms-3 mb-3 rounded-3 text-muted float-end">{{ result.timestamp | date }}</p>
+                        <p class="ms-3 mb-3 rounded-3 text-muted float-end">{{ result.timestamp | date }}</p>
                       </div>
                     </div>
                   </div>
 
                   <!-- Floating Button Inside Display SearchResult -->
-                  <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3" style="margin-left: 115px;">
+                  <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3">
                     <i (click)="onCloseSearch()" class="fa fa-times-circle text-danger bg-light rounded-circle"
-                      aria-hidden="true" style="font-size: 50px;"></i>
+                      aria-hidden="true"></i>
                   </div>
                 </div>
 
