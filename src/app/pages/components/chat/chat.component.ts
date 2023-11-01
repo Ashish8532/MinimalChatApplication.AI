@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from '../../services/message.service';
 import { NgToastService } from 'ng-angular-popup';
+import { MessageResponse } from '../../models/message-response';
+import { ApiResponse } from '../../models/api-response';
 
 /**
  * Component for managing chat-related functionality.
@@ -18,7 +20,7 @@ export class ChatComponent {
   statusMessage: string = ''; // Status message of user
 
   searchQuery: string = ''; // Query for searching conversations
-  searchResults: any[] = []; // Search results
+  searchResults: MessageResponse[] = []; // Search results
   showSearchResult: boolean = false; // Flag to control the visibility of search results
 
   notificationMessage: string | null = null; // Notification message
@@ -62,27 +64,18 @@ export class ChatComponent {
 
 
   /**
- * Method triggered when the user initiates a search for conversations.
+ * Initiates a search for conversations.
  * - Calls the message service to search for conversations based on the provided query.
  * - Updates the component's searchResults array with the retrieved data.
  * - Displays a success toast notification with the provided message.
- * - Handles errors by displaying appropriate error messages to the user using toast notifications.
- * - Toast messages include a summary and detailed information.
+ * - Sets the `showSearchResult` flag to true to display search results.
  */
   onSearch() {
     this.messageService.searchConversations(this.searchQuery).subscribe({
-      next: (res) => {
+      next: (res: ApiResponse<MessageResponse[]>) => {
         this.searchResults = res.data;
         this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
         this.showSearchResult = true;
-      },
-      error: (err) => {
-        if (err.status === 401 || err.status === 400 || err.status === 404 || err.status === 500) {
-          // Display the error message to the user
-          this.toast.error({ detail: "ERROR", summary: err.error.message, duration: 3000 });
-        } else {
-          this.toast.error({ detail: "ERROR", summary: "Something went wrong while processing the request.", duration: 3000 });
-        }
       }
     });
   }

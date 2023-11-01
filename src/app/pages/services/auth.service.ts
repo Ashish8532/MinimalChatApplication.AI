@@ -14,6 +14,12 @@ import { NgToastService } from 'ng-angular-popup';
 import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
 import GetToken from 'src/app/shared/helpers/get-token';
 import { TokenApiModel } from 'src/app/shared/models/TokenApiModel';
+import { ApiResponse } from '../models/api-response';
+import { UserResponse } from '../models/user-response';
+import { Register } from '../models/register';
+import { TokenResponse } from '../models/token-response';
+import { Login } from '../models/login';
+import { UserChatResponse } from '../models/user-chat-response';
 
 /**
  * Service for handling communication with the server related to user authentication and user related data.
@@ -90,17 +96,14 @@ export class AuthService {
   }
 
   /**
-   * Registers a user by sending a POST request to the registration API endpoint.
-   * @param userObj - User registration details.
-   * @returns An observable with the API response.
-   */
-  register(userObj: any): Observable<any> {
+ * Registers a user by sending a POST request to the registration API endpoint.
+ * @param registerData - User registration data in the form of a RegisterDto.
+ * @returns An observable with the API response containing user registration information.
+ */
+  register(registerData: Register): Observable<ApiResponse<UserResponse>> {
     sessionStorage.setItem('isAuthenticated', 'false');
-    return this.http
-      .post<any>(`${this.baseUrl}/register`, userObj)
-      .pipe(
-        catchError((error: HttpErrorResponse) => this.handleApiError(error))
-      );
+    return this.http.post<ApiResponse<UserResponse>>(`${this.baseUrl}/register`, registerData).pipe(
+        catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 
   /**
@@ -139,16 +142,15 @@ export class AuthService {
     return this.usernameSubject.asObservable();
   }
 
-  /**
-   * Logs in a user by sending a POST request to the login API endpoint.
-   * @param loginData - User login details.
-   * @returns An observable with the API response.
-   */
-  login(loginData: any): Observable<any> {
+ /**
+ * Initiates the user login process by sending a POST request to the login API endpoint.
+ *
+ * @param loginData - User login details, typically including username and password.
+ * @returns An observable containing the API response, which includes access and refresh tokens.
+ */
+  login(loginData: Login): Observable<TokenResponse<UserResponse>> {
     const url = `${this.baseUrl}/login`;
-    return this.http
-      .post(url, loginData)
-      .pipe(
+    return this.http.post<TokenResponse<UserResponse>>(url, loginData).pipe(
         catchError((error: HttpErrorResponse) => this.handleApiError(error))
       );
   }
@@ -181,17 +183,15 @@ export class AuthService {
   }
 
   /**
-   * Handles the Google sign-in process by sending a POST request to the Google sign-in API endpoint.
-   * @param idToken - Google sign-in ID token.
-   * @returns An observable with the API response.
-   */
-  googleSignIn(idToken: string): Observable<any> {
+ * Initiates the Google sign-in process by sending a POST request to the Google sign-in API endpoint.
+ *
+ * @param idToken - The Google sign-in ID token.
+ * @returns An observable containing the API response, wrapped in a TokenResponse of type UserResponse.
+ */
+  googleSignIn(idToken: string): Observable<TokenResponse<UserResponse>> {
     const url = `${this.baseUrl}/google-signin?idToken=${idToken}`;
-    return this.http
-      .post(url, null)
-      .pipe(
-        catchError((error: HttpErrorResponse) => this.handleApiError(error))
-      );
+    return this.http.post<TokenResponse<UserResponse>>(url, null).pipe(
+        catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 
   /**
@@ -208,15 +208,11 @@ export class AuthService {
   }
 
   /**
-   * Updates the user's online status by sending a POST request to the status API endpoint.
-   * @param userId - The ID of the user whose status is being updated.
-   * @param previousUserId - The previous ID of the user, if applicable.
-   * @returns An observable with the API response.
-   */
-  updateUserStatus(userId?: string, previousUserId?: string): Observable<any> {
-    let params = new HttpParams()
-      .set('userId', userId!)
-      .set('previousUserId', previousUserId!);
-    return this.http.post(`${this.baseUrl}/status`, null, { params: params });
+ * Updates the online status of a user by sending a POST request to the status API endpoint.
+ *
+ * @returns An observable of type ApiResponse<object> capturing the API response.
+ */
+  updateUserStatus(): Observable<ApiResponse<object>> {
+    return this.http.post<ApiResponse<object>>(`${this.baseUrl}/status`, null);
   }
 }

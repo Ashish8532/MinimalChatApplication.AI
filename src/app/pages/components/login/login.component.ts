@@ -7,6 +7,9 @@ import ValidateForm from 'src/app/shared/helpers/validate-forms';
 import ValidatePassword from 'src/app/shared/helpers/validate-password';
 import { AuthService } from '../../services/auth.service';
 import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
+import { TokenResponse } from '../../models/token-response';
+import { UserResponse } from '../../models/user-response';
+import { Login } from '../../models/login';
 
 
 /**
@@ -56,7 +59,7 @@ export class LoginComponent {
       if (user) {
         this.authService.googleSignIn(user.idToken.toString()).subscribe(
           {
-            next: (res) => {
+            next: (res: TokenResponse<UserResponse>) => {
               localStorage.clear();
               this.authService.storeToken(res.accessToken);
               this.authService.storeRefreshToken(res.refreshToken);
@@ -95,17 +98,22 @@ export class LoginComponent {
   }
 
   /**
-   * Handles the user login process.
-   * - Validates the login form.
-   *   - If valid, sends a login request to the authentication service.
-   *   - If successful, resets the form, displays a success toast, and navigates to the chat page.
-   *   - If the form is not valid, marks all form fields as touched and displays an error toast.
-   */
+ * Handles the user login process.
+ * - Validates the login form.
+ *   - If the form is valid, sends a login request to the authentication service.
+ *   - Upon successful login, resets the form, clears localStorage, stores access and refresh tokens,
+ *     displays a success toast, and navigates to the chat page.
+ *   - If the form is not valid, marks all form fields as touched and displays an error toast.
+ */
   onLogin() {
     if (this.loginForm.valid) {
-      this.authService.login(this.loginForm.value).subscribe(
+      const loginData: Login = {
+        email: this.loginForm.get('email')?.value,
+        password: this.loginForm.get('password')?.value,
+      };
+      this.authService.login(loginData).subscribe(
         {
-          next: (res) => {
+          next: (res: TokenResponse<UserResponse>) => {
             this.loginForm.reset();
             localStorage.clear();
             this.authService.storeToken(res.accessToken);

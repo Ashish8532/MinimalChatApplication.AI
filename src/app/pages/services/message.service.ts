@@ -2,6 +2,9 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Injectable } from '@angular/core';
 import { NgToastService } from 'ng-angular-popup';
 import { Observable, catchError, throwError } from 'rxjs';
+import { Message } from '../models/message';
+import { ApiResponse } from '../models/api-response';
+import { MessageResponse } from '../models/message-response';
 
 
 /**
@@ -46,62 +49,63 @@ export class MessageService {
 
 
   /**
-   * Retrieves conversation history for a user.
-   * @param userId - The ID of the user.
-   * @param before - Date string indicating the starting point for the history.
-   * @param count - The number of messages to retrieve (default: 20).
-   * @param sort - Sort order for messages (default: 'desc').
-   * @returns An observable with the conversation history.
+ * Retrieves conversation history for a user.
+ *
+ * @param userId - The ID of the user.
+ * @param before - Date string indicating the starting point for the history.
+ * @param count - The number of messages to retrieve (default: 20).
+ * @param sort - Sort order for messages (default: 'desc').
+ *
+ * @returns An observable with the conversation history.
  */
-  getConversationHistory(userId: string, before?: string, count: number = 20, sort: string = 'desc'): Observable<any> {
+  getConversationHistory(userId: string, before?: string): Observable<ApiResponse<MessageResponse[]>> {
     let params = new HttpParams()
       .set('userId', userId)
-      .set('count', count)
-      .set('sort', sort);
-
+      .set('count', 20)
+      .set('sort', 'desc');
     if (before) {
       params = params.set('before', before);
     }
-    return this.http.get(`${this.apiUrl}`, { params }).pipe(
+    return this.http.get<ApiResponse<MessageResponse[]>>(`${this.apiUrl}`, { params }).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 
 
-  /**
-   * Sends a new message.
-   * @param message - The message object with receiverId and content.
-   * @returns An observable indicating the success of the operation.
-   */
-  sendMessage(message: { receiverId: string, content: string }): Observable<any> {
-    return this.http.post(this.apiUrl, message, {}).pipe(
+ /**
+ * Sends a new message.
+ * @param message - The message object with receiverId and content.
+ * @returns An observable indicating the success of the operation.
+ */
+  sendMessage(message: Message): Observable<ApiResponse<MessageResponse>> {
+    return this.http.post<ApiResponse<MessageResponse>>(this.apiUrl, message, {}).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 
 
-  /**
-  * Updates an existing message.
-  * @param messageId - The ID of the message to update.
-  * @param newContent - The new content for the message.
-  * @returns An observable indicating the success of the operation.
-  */
-  updateMessage(messageId: number, newContent: string): Observable<any> {
+ /**
+ * Updates an existing message.
+ * @param messageId - The ID of the message to update.
+ * @param newContent - The new content for the message.
+ * @returns An observable indicating the success of the operation.
+ */
+  updateMessage(messageId: number, newContent: string): Observable<ApiResponse<object>> {
     const updatedMessage = {
       content: newContent
     };
     const url = `${this.apiUrl}/${messageId}`;
-    return this.http.put(url, updatedMessage, {}).pipe(
+    return this.http.put<ApiResponse<object>>(url, updatedMessage, {}).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 
 
   /**
-   * Deletes a message.
-   * @param messageId - The ID of the message to delete.
-   * @returns An observable indicating the success of the operation.
-   */
-  deleteMessage(messageId: number): Observable<any> {
+ * Deletes a message.
+ * @param messageId - The ID of the message to delete.
+ * @returns An observable indicating the success of the operation.
+ */
+  deleteMessage(messageId: number): Observable<ApiResponse<object>> {
     const deleteUrl = `${this.apiUrl}/${messageId}`;
-    return this.http.delete(deleteUrl, {});
+    return this.http.delete<ApiResponse<object>>(deleteUrl, {});
   }
 
 
@@ -110,12 +114,12 @@ export class MessageService {
    * @param query - The search query.
    * @returns An observable with search results.
    */
-  searchConversations(query: string): Observable<any> {
+  searchConversations(query: string): Observable<ApiResponse<MessageResponse[]>> {
     let params = new HttpParams()
       .set('query', query);
 
     const url = `${this.searchApi}/search`;
-    return this.http.get(url, { params }).pipe(
+    return this.http.get<ApiResponse<MessageResponse[]>>(url, { params }).pipe(
       catchError((error: HttpErrorResponse) => this.handleApiError(error)));
   }
 

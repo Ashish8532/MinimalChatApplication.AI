@@ -1,3 +1,6 @@
+.section {
+  min-height: 100vh;
+}
 #chat3 {
   border-radius: 15px; 
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -42,4 +45,17 @@ section {
     top: 8px;
     right:8px;
     cursor: pointer;
+  }
+ 
+
+  .small {
+    background-color: rgba(57, 192, 237,.2);
+  }
+
+  .position-absolute {
+    margin-left: 115px;
+  }
+
+  .position-absolute i {
+    font-size: 50px;
   }
