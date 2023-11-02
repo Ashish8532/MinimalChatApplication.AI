@@ -18,6 +18,7 @@ import { Router } from '@angular/router';
 import { Message } from '../../models/message';
 import { MessageResponse } from '../../models/message-response';
 import { ApiResponse } from '../../models/api-response';
+import { GifResponse } from '../../models/gif-response';
 
 /**
  * Component for displaying and managing conversation history.
@@ -63,7 +64,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
 
   // GIF Preview to send Gif
   isPopupOpen: boolean = false;
-  selectedGif: any;
+  selectedGif: GifResponse | null = null;
 
   /**
    * Constructor of the ConversationHistoryComponent class.
@@ -383,7 +384,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     };
     
     if (this.selectedGif) {
-      message.gifUrl = this.selectedGif;
+      message.gifId = this.selectedGif.id;
     }
 
     this.messageService.sendMessage(message).subscribe({
