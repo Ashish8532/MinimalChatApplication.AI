@@ -3,8 +3,6 @@ export const StatusMessages: string[] = [
     'Busy',
     'Away',
     'Offline',
-    'Custom Status 1',
-    'Custom Status 2',
     'On a call',
     'In a meeting',
     'Out for lunch',

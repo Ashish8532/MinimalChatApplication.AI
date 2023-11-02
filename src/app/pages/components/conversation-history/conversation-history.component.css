@@ -247,3 +247,9 @@
 .modal:not(:active) {
   background-color: rgba(0, 0, 128, 0.5);/* Change to your desired background color */
 }
+
+
+.gif-image {
+  width: 200px;
+  height: 200px;
+}
