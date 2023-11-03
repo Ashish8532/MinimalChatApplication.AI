@@ -16,6 +16,7 @@ import { SignalRService } from '../../services/signal-r.service';
 import { MessageService } from '../../services/message.service';
 import { UserChatResponse } from '../../models/user-chat-response';
 import { ApiResponse } from '../../models/api-response';
+import { MessageCount } from '../../models/message-count';
 
 /**
  * Component representing a list of users.
@@ -40,6 +41,8 @@ export class UserListComponent implements OnInit, OnChanges {
   predefinedColors: string[] = ['red', 'blue', 'orange', 'green', 'purple', 'teal']; // Array of predefined colors
   @Output() showNotification = new EventEmitter<string>(); // Event emitter for displaying notifications
 
+  loggedInUserId: string = '';
+
   /**
    * Constructor for initializing services and dependencies.
    * @param userService - Instance of the UserService for fetching user data.
@@ -58,7 +61,7 @@ export class UserListComponent implements OnInit, OnChanges {
     private signalRService: SignalRService,
     private messageService: MessageService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   /**
    * Lifecycle hook called after Angular has initialized the component.
@@ -77,6 +80,18 @@ export class UserListComponent implements OnInit, OnChanges {
       },
     });
 
+
+    /**
+     * Subscribes to changes in the loggedUserId through the AuthService.
+     * - Updates the component's loggedUserId property with the received user ID.
+     * @remarks
+     * This subscription allows the component to dynamically reflect any changes in the logged user's ID.
+    */
+    this.authService.loggedUserId$.subscribe((userId) => {
+      this.loggedInUserId = userId;
+    });
+
+
     /**
      * Subscribes to real-time updates for message counts using SignalR.
      * Updates the user's message count and read status when a new message arrives.
@@ -84,15 +99,17 @@ export class UserListComponent implements OnInit, OnChanges {
      * @param data - Data containing message count, read status, and user ID.
      */
     this.signalRService.receiveUpdatedMessageCount$().subscribe({
-      next: (data: { messageCount: number, isRead: boolean, userId: string }) => {
-        const userToUpdate = this.users.find(user => user.userId === data.userId);
-        if (userToUpdate) {
-          userToUpdate.messageCount = data.messageCount;
-          userToUpdate.isRead = data.isRead;
-          this.cdr.detectChanges();
-          if (data.messageCount > 0) {
-            const notificationMessage = `You have ${data.messageCount} unread message from ${userToUpdate.name}`;
-            this.showNotification.emit(notificationMessage);
+      next: (data: MessageCount) => {
+        if (this.loggedInUserId == data.receiverId) {
+          const userToUpdate = this.users.find(user => user.userId === data.userId);
+          if (userToUpdate) {
+            userToUpdate.messageCount = data.messageCount;
+            userToUpdate.isRead = data.isRead;
+            this.cdr.detectChanges();
+            if (data.messageCount > 0) {
+              const notificationMessage = `You have ${data.messageCount} unread message from ${userToUpdate.name}`;
+              this.showNotification.emit(notificationMessage);
+            }
           }
         }
       },
@@ -127,19 +144,19 @@ export class UserListComponent implements OnInit, OnChanges {
     }
   }
 
- /**
- * Handles the click event on a user.
- * - Emits the selected user information.
- * - Updates the chat status and emits a notification if there are unread messages.
- * @param userId - ID of the clicked user.
- * @param userName - Name of the clicked user.
- * @param statusMessage - Status message of the clicked user.
- */
+  /**
+  * Handles the click event on a user.
+  * - Emits the selected user information.
+  * - Updates the chat status and emits a notification if there are unread messages.
+  * @param userId - ID of the clicked user.
+  * @param userName - Name of the clicked user.
+  * @param statusMessage - Status message of the clicked user.
+  */
   onUserClick(userId: string, userName: string, statusMessage: string) {
     const userSelection = { userId, userName, statusMessage };
     this.previousUserId = this.selectedUserId;
-    this.selectedUserId = userId; 
-    this.messageService.updateChatStatus(userId, this.previousUserId!).subscribe((response) => {});
+    this.selectedUserId = userId;
+    this.messageService.updateChatStatus(userId, this.previousUserId!).subscribe((response) => { });
     this.userSelected.emit(userSelection);
   }
 

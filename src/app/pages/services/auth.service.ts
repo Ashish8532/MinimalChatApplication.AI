@@ -41,7 +41,7 @@ export class AuthService {
   private usernameSubject = new BehaviorSubject<string>('');
 
   // BehaviorSubject to manage the current loggedUserId extracted from the token payload.
-  private loggedUserIdSubject = new BehaviorSubject<string>('');
+  private loggedUserIdSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   // Observable to expose the current loggedUserId to other components.
   loggedUserId$ = this.loggedUserIdSubject.asObservable();
