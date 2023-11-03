@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpTransportType, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { Observable } from 'rxjs';
+import { MessageCount } from '../models/message-count';
+import { AuthService } from './auth.service';
 
 /**
  * Service for managing SignalR connections and receiving real-time updates.
@@ -20,7 +22,7 @@ export class SignalRService {
  * Initializes the SignalR hub connection with the specified hub URL and configurations.
  * Starts the SignalR connection.
  */
-  constructor() {
+  constructor(private authService: AuthService) {
     this.hubConnection = new HubConnectionBuilder()
       .withUrl('https://localhost:44394/chatHub', {
         skipNegotiation: true,
@@ -91,17 +93,17 @@ export class SignalRService {
     });
   }
 
-  /**
+ /**
    * Observable for receiving updated message count in real-time.
    * @returns An observable that emits updated message count details.
    */
-  receiveUpdatedMessageCount$ = (): Observable<{ messageCount: number, isRead: boolean, userId: string }> => {
-    return new Observable(observer => {
-      this.hubConnection.on('UpdateMessageCount', (messageCount: number, isRead: boolean, userId: string) => {
-        observer.next({ messageCount, isRead, userId });
-      });
+ receiveUpdatedMessageCount$ = (): Observable<MessageCount> => {
+  return new Observable(observer => {
+    this.hubConnection.on('UpdateMessageCount', (messageCount: MessageCount) => {
+      observer.next(messageCount);
     });
-  }
+  });
+}
 
 
   /**
