@@ -5,6 +5,7 @@ import { Observable, catchError, throwError } from 'rxjs';
 import { Message } from '../models/message';
 import { ApiResponse } from '../models/api-response';
 import { MessageResponse } from '../models/message-response';
+import { ErrorMessages } from 'src/app/shared/constant/toast-message';
 
 
 /**
@@ -41,7 +42,7 @@ export class MessageService {
     if (error.status === 400 || error.status === 401 || error.status === 404 || error.status === 500) {
       errorMessage = error.error.message;
     } else {
-      errorMessage = 'Something went wrong while processing the request.';
+      errorMessage = ErrorMessages.ServerNotRunning;
     }
     this.toast.error({ detail: "ERROR", summary: errorMessage, duration: 3000 });
     return throwError(() => error);

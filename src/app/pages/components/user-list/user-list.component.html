@@ -1,4 +1,4 @@
-  <div class="scroll-container" data-mdb-perfect-scrollbar="true" style="position: relative; height: 400px">
+  <div class="scroll-container user-container" data-mdb-perfect-scrollbar="true">
     <ul class="list-unstyled mb-0" *ngFor="let user of users; let i = index">
       <li class="p-2 border-bottom">
         <a (click)="onUserClick(user.userId, user.name, user.statusMessage)" [ngClass]="{'selected-user': user.userId === selectedUserId}" class="d-flex justify-content-between">
@@ -9,7 +9,7 @@
             </div>
             <div class="user-name">
               <p class="fw-bold mb-0">{{user.name}}</p>
-              <p class="small text-truncate text-muted" [attr.title]="user.email" style="max-width: 160px;">{{user.email}}</p>
+              <p class="small text-truncate text-muted" [attr.title]="user.email">{{user.email}}</p>
             </div>
           </div>
           <div class="pt-1">

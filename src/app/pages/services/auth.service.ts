@@ -20,6 +20,7 @@ import { Register } from '../models/register';
 import { TokenResponse } from '../models/token-response';
 import { Login } from '../models/login';
 import { UserChatResponse } from '../models/user-chat-response';
+import { ErrorMessages } from 'src/app/shared/constant/toast-message';
 
 /**
  * Service for handling communication with the server related to user authentication and user related data.
@@ -85,7 +86,7 @@ export class AuthService {
     ) {
       errorMessage = error.error.message;
     } else {
-      errorMessage = 'Something went wrong while processing the request.';
+      errorMessage = ErrorMessages.ServerNotRunning;
     }
     this.toast.error({
       detail: 'ERROR',

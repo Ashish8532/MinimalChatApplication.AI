@@ -20,3 +20,8 @@
     justify-content: center;
     margin-top: 2px;
 }
+
+.logout {
+    font-size: 30px; 
+    color: brown;
+}

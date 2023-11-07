@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { NgToastService } from 'ng-angular-popup';
+import { ErrorMessages } from 'src/app/shared/constant/toast-message';
 
 
 /**
@@ -20,7 +21,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   }
   else {
     // Display error message and navigate to login page
-    toast.error({ detail: "ERROR", summary: "Please Login First!" });
+    toast.error({ detail: "ERROR", summary: ErrorMessages.LoginFirst });
     router.navigate(['login']);
     return false;
   }
