@@ -6,6 +6,7 @@ import { UserProfile } from '../models/user-profile';
 import { ApiResponse } from '../models/api-response';
 import { UpdateProfile } from '../models/update-profile';
 import { UserChatResponse } from '../models/user-chat-response';
+import { ErrorMessages } from 'src/app/shared/constant/toast-message';
 
 /**
  * Service for managing user-related API calls.
@@ -31,7 +32,7 @@ export class UserService {
     if (error.status === 400 || error.status === 401 || error.status === 404 || error.status === 500) {
       errorMessage = error.error.message;
     } else {
-      errorMessage = 'Something went wrong while processing the request.';
+      errorMessage = ErrorMessages.ServerNotRunning;
     }
     this.toast.error({ detail: "ERROR", summary: errorMessage, duration: 3000 });
     return throwError(() => error);

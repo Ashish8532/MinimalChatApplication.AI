@@ -24,21 +24,23 @@ export class RequestLogComponent implements OnInit {
 
   // Reactive Form
   timeframeForm: FormGroup; // Reactive form for time range selection
-  selectedTimeframe: string = '5'; // Default selection for time range
+
+  selectedTimeframe!: string;
 
   // Column visibility properties
-  showId: boolean = true; 
-  showTimestamp: boolean = true;
-  showIpAddress: boolean = true; 
-  showRequestBody: boolean = true; 
-  showUsername: boolean = true; 
+  showId!: boolean; 
+  showTimestamp!: boolean;
+  showIpAddress!: boolean; 
+  showRequestBody!: boolean; 
+  showUsername!: boolean; 
 
-  currentPage: number = 1; // Current page number for pagination
-  itemsPerPage: number = 10; // Number of items per page
-  totalItems: number = 0; // Total number of logs
+  // Pagination properties
+  currentPage!: number; // Current page number for pagination;
+  itemsPerPage!: number; // Number of items per page;
+  totalItems!: number; // Total number of logs;
 
   // Constant for the date format string
-  private readonly dateFormat: string = 'yyyy-MM-ddTHH:mm:ss';
+  private readonly dateFormat!: string;
 
   /**
    * Constructor for initializing services and dependencies.
@@ -53,10 +55,29 @@ export class RequestLogComponent implements OnInit {
     private formBuilder: FormBuilder,
     private toast: NgToastService
   ) {
+    
     // Initialize the timeframeForm with default values
     this.timeframeForm = this.formBuilder.group({
       timeframe: ['5'] // Default selection
     });
+
+    // Set the initial value for selectedTimeframe to the default value of '5'
+    this.selectedTimeframe = '5';
+
+    // Initialize the column visibility properties
+    this.showId = true;
+    this.showTimestamp = true;
+    this.showIpAddress = true;
+    this.showRequestBody = true;
+    this.showUsername = true;
+    
+    // Initialize the pagination properties
+    this.currentPage = 1;
+    this.itemsPerPage = 10;
+    this.totalItems = 0;
+
+    // Initialize the dateFormat constant
+    this.dateFormat = 'yyyy-MM-ddTHH:mm:ss';
   }
 
   /**
@@ -79,8 +100,8 @@ export class RequestLogComponent implements OnInit {
     const currentTime = new Date();
     const fiveMinutesAgo = new Date(currentTime.getTime() - 5 * 60 * 1000);
 
-    this.startTime = this.datePipe.transform(fiveMinutesAgo, this.dateFormat) || null;
-    this.endTime = this.datePipe.transform(currentTime, this.dateFormat) || null;
+    this.startTime = this.datePipe.transform(fiveMinutesAgo, this.dateFormat) ?? null;
+    this.endTime = this.datePipe.transform(currentTime, this.dateFormat) ?? null;
   }
 
   /**
@@ -98,13 +119,13 @@ export class RequestLogComponent implements OnInit {
 
     switch (this.selectedTimeframe) {
       case '5':
-        this.startTime = this.datePipe.transform(currentTime.getTime() - 5 * 60 * 1000, this.dateFormat) || null;
+        this.startTime = this.datePipe.transform(currentTime.getTime() - 5 * 60 * 1000, this.dateFormat) ?? null;
         break;
       case '10':
-        this.startTime = this.datePipe.transform(currentTime.getTime() - 10 * 60 * 1000, this.dateFormat) || null;
+        this.startTime = this.datePipe.transform(currentTime.getTime() - 10 * 60 * 1000, this.dateFormat) ?? null;
         break;
       case '30':
-        this.startTime = this.datePipe.transform(currentTime.getTime() - 30 * 60 * 1000, this.dateFormat) || null;
+        this.startTime = this.datePipe.transform(currentTime.getTime() - 30 * 60 * 1000, this.dateFormat) ?? null;
         break;
       case 'custom':
         break;

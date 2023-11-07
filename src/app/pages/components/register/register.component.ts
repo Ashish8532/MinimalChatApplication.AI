@@ -13,10 +13,7 @@ import { UserProfile } from '../../models/user-profile';
 import { Register } from '../../models/register';
 import { TokenResponse } from '../../models/token-response';
 import { UserResponse } from '../../models/user-response';
-
-// Constant for the name pattern
-const NAME_PATTERN = '^[A-Za-z ]+$';
-
+import { ErrorMessages } from 'src/app/shared/constant/toast-message';
 
 /**
  * Component for user registration.
@@ -27,17 +24,20 @@ const NAME_PATTERN = '^[A-Za-z ]+$';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent {
   // Properties for password visibility toggle
-  type: string = "password";
+  type: string = 'password';
   isText: boolean = false;
-  eyeIcon: string = "fa-eye-slash";
+  eyeIcon: string = 'fa-eye-slash';
 
   // Reactive form for user registration
   registerForm!: FormGroup;
   user!: SocialUser | null; // User information obtained from social login
+
+  // Constant for the name pattern
+  private readonly NAME_PATTERN!: string;
 
   /**
    * Constructor of the RegisterComponent class.
@@ -45,32 +45,48 @@ export class RegisterComponent {
    * - Sets the initial value of the 'user' property to null.
    * - Subscribes to changes in the social authentication state.
    * - Handles Google sign-in events and redirects upon successful authentication.
-   * 
+   *
    * @param formBuilder - An instance of the FormBuilder service for creating and managing forms.
    * @param authService - An instance of the AuthService for user authentication operations.
    * @param router - An instance of the Router for navigating between routes.
    * @param toast - An instance of the NgToastService for displaying toast notifications.
    * @param socialAuthService - An instance of the SocialAuthService for managing social logins.
    */
-  constructor(private formBuilder: FormBuilder,
+  constructor(
+    private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router,
     private toast: NgToastService,
-    private socialAuthService: SocialAuthService) {
+    private socialAuthService: SocialAuthService
+  ) {
+    // Initialize the Name Pattern with default values
+    this.NAME_PATTERN = '^[A-Za-z ]+$';
+
+    // Initializes the user property to null.
     this.user = null;
+
+    /**
+     * Subscribes to the authentication state of the social sign-in.
+     * Handles the sign-in process when a user is authenticated.
+     * - Stores the user's token and refresh token in local storage.
+     * - Navigates to the chat page on successful sign-in.
+     * @param user - The authenticated social user.
+     */
     this.socialAuthService.authState.subscribe((user: SocialUser) => {
-      console.log(user);
       if (user) {
-        this.authService.googleSignIn(user.idToken.toString()).subscribe(
-          {
-            next: (res: TokenResponse<UserResponse>) => {
-              localStorage.clear();
-              this.authService.storeToken(res.accessToken);
-              this.authService.storeRefreshToken(res.refreshToken);
-              this.toast.success({ detail: "SUCCESS", summary: res.message, duration: 3000 });
-              this.router.navigate(['chat']);
-            }
-          })
+        this.authService.googleSignIn(user.idToken.toString()).subscribe({
+          next: (res: TokenResponse<UserResponse>) => {
+            localStorage.clear();
+            this.authService.storeToken(res.accessToken);
+            this.authService.storeRefreshToken(res.refreshToken);
+            this.toast.success({
+              detail: 'SUCCESS',
+              summary: res.message,
+              duration: 3000,
+            });
+            this.router.navigate(['chat']);
+          },
+        });
       }
       this.user = user;
     });
@@ -83,15 +99,30 @@ export class RegisterComponent {
    *   - Name: Required, pattern validation for alphabetical characters and spaces, minimum and maximum length, and no consecutive spaces.
    *   - Email: Required and email format validation.
    *   - Password: Required, no space allowed, and password complexity validation.
-   * 
+   *
    * Note: Validators are defined in external helper classes.
    */
   ngOnInit(): void {
     this.registerForm = this.formBuilder.group({
-      name: [null, [Validators.required, Validators.pattern(NAME_PATTERN),
-      Validators.minLength(2), Validators.maxLength(20), NoConsecutiveSpaces.noConsecutiveSpaces]],
+      name: [
+        null,
+        [
+          Validators.required,
+          Validators.pattern(this.NAME_PATTERN),
+          Validators.minLength(2),
+          Validators.maxLength(20),
+          NoConsecutiveSpaces.noConsecutiveSpaces,
+        ],
+      ],
       email: [null, [Validators.required, Validators.email]],
-      password: [null, [Validators.required, NoSpaceAllowed.noSpaceAllowed, ValidatePassword.validatePassword]],
+      password: [
+        null,
+        [
+          Validators.required,
+          NoSpaceAllowed.noSpaceAllowed,
+          ValidatePassword.validatePassword,
+        ],
+      ],
     });
   }
 
@@ -102,17 +133,17 @@ export class RegisterComponent {
    */
   hideShowPass() {
     this.isText = !this.isText;
-    this.isText ? this.eyeIcon = "fa-eye" : this.eyeIcon = "fa-eye-slash";
-    this.isText ? this.type = "text" : this.type = "password";
+    this.isText ? (this.eyeIcon = 'fa-eye') : (this.eyeIcon = 'fa-eye-slash');
+    this.isText ? (this.type = 'text') : (this.type = 'password');
   }
 
- /**
- * Handles the user registration process.
- * - Validates the registration form.
- *   - If the form is valid, sends a registration request to the authentication service.
- *   - Upon successful registration, resets the form, displays a success toast, and navigates to the login page.
- *   - If the form is not valid, marks all form fields as touched and displays an error toast.
- */
+  /**
+   * Handles the user registration process.
+   * - Validates the registration form.
+   *   - If the form is valid, sends a registration request to the authentication service.
+   *   - Upon successful registration, resets the form, displays a success toast, and navigates to the login page.
+   *   - If the form is not valid, marks all form fields as touched and displays an error toast.
+   */
   onRegister() {
     if (this.registerForm.valid) {
       const registerData: Register = {
@@ -130,7 +161,7 @@ export class RegisterComponent {
     }
     else {
       ValidateForm.validateAllFormFields(this.registerForm);
-      this.toast.error({ detail: "ERROR", summary: "Form is not valid.", duration: 3000 });
+      this.toast.error({ detail: "ERROR", summary: ErrorMessages.FormNotValid, duration: 3000 });
     }
   }
 }

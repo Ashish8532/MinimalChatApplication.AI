@@ -4,6 +4,7 @@ import { NgToastService } from 'ng-angular-popup';
 import { Observable, catchError, throwError } from 'rxjs';
 import { ApiResponse } from '../models/api-response';
 import { Log } from '../models/log';
+import { ErrorMessages } from 'src/app/shared/constant/toast-message';
 
 /**
  * Service for handling requests related to log history.
@@ -34,7 +35,7 @@ export class RequestLogService {
     if (error.status === 400 || error.status === 401 || error.status === 404 || error.status === 500) {
       errorMessage = error.error.message;
     } else {
-      errorMessage = 'Something went wrong while processing the request.';
+      errorMessage = ErrorMessages.ServerNotRunning;
     }
     this.toast.error({ detail: "ERROR", summary: errorMessage, duration: 3000 });
     return throwError(() => error);

@@ -77,7 +77,7 @@
         <div *ngIf="isEditing && message === selectedMessage" class="message-editor" [formGroup]="editForm">
           <!-- Inline editor for editing messages -->
           <input type="text" formControlName="content" [(ngModel)]="selectedMessage.content"
-            style="box-shadow: none; border: none" class="form-control form-control-lg border-bottom bg-light"
+            class="input-box form-control form-control-lg border-bottom bg-light"
             (keydown.enter)="editMessage(message)" />
           <div *ngIf="editForm.get('content')?.hasError('required')" class="text-danger mb-2">
             Content is required.

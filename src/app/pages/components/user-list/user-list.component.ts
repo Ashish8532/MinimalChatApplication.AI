@@ -38,7 +38,7 @@ export class UserListComponent implements OnInit, OnChanges {
   @Output() userSelected = new EventEmitter<{ userId: string; userName: string; statusMessage: string; }>(); // Event emitter for user selection
   selectedUserId: string | null = null; // Currently selected user ID
   previousUserId: string | null = null; // Previous selected user ID
-  predefinedColors: string[] = ['red', 'blue', 'orange', 'green', 'purple', 'teal']; // Array of predefined colors
+  predefinedColors!: string[]; // Array of predefined colors
   @Output() showNotification = new EventEmitter<string>(); // Event emitter for displaying notifications
 
   loggedInUserId: string = '';
@@ -61,7 +61,10 @@ export class UserListComponent implements OnInit, OnChanges {
     private signalRService: SignalRService,
     private messageService: MessageService,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) { 
+    // Initialize the predefinedColors array with the predefined colors
+    this.predefinedColors = ['red', 'blue', 'orange', 'green', 'purple', 'teal'];
+  }
 
   /**
    * Lifecycle hook called after Angular has initialized the component.

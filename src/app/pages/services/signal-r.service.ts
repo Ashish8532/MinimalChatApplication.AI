@@ -3,6 +3,8 @@ import { HttpTransportType, HubConnectionBuilder, LogLevel } from '@microsoft/si
 import { Observable } from 'rxjs';
 import { MessageCount } from '../models/message-count';
 import { AuthService } from './auth.service';
+import { environment } from 'src/environments/environment.development';
+import { MessageResponse } from '../models/message-response';
 
 /**
  * Service for managing SignalR connections and receiving real-time updates.
@@ -24,7 +26,7 @@ export class SignalRService {
  */
   constructor(private authService: AuthService) {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl('https://localhost:44394/chatHub', {
+      .withUrl(environment.signalRHubUrl, {
         skipNegotiation: true,
         transport: HttpTransportType.WebSockets
       })
@@ -46,12 +48,12 @@ export class SignalRService {
   }
 
   /**
-   * Observable for receiving new messages in real-time.
-   * @returns An observable that emits new messages.
-   */
-  receiveNewMessage$ = (): Observable<any> => {
+ * Creates an Observable for receiving new chat messages from the SignalR hub.
+ * @returns An Observable that emits incoming chat messages.
+ */
+  receiveNewMessage$ = (): Observable<MessageResponse> => {
     return new Observable(observer => {
-      this.hubConnection.on('ReceiveMessage', (messageResponse: any) => {
+      this.hubConnection.on('ReceiveMessage', (messageResponse: MessageResponse) => {
         observer.next(messageResponse);
       });
     });

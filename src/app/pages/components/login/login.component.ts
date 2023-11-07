@@ -10,6 +10,7 @@ import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
 import { TokenResponse } from '../../models/token-response';
 import { UserResponse } from '../../models/user-response';
 import { Login } from '../../models/login';
+import { ErrorMessages } from 'src/app/shared/constant/toast-message';
 
 
 /**
@@ -125,7 +126,7 @@ export class LoginComponent {
     }
     else {
       ValidateForm.validateAllFormFields(this.loginForm);
-      this.toast.error({ detail: "ERROR", summary: "Form is not valid.", duration: 3000 });
+      this.toast.error({ detail: "ERROR", summary: ErrorMessages.FormNotValid, duration: 3000 });
     }
   }
 

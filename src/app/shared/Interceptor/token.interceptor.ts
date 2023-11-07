@@ -12,6 +12,7 @@ import GetToken from '../helpers/get-token';
 import { NgToastService } from 'ng-angular-popup';
 import { Router } from '@angular/router';
 import { TokenApiModel } from '../models/TokenApiModel';
+import { WarningMessage } from '../constant/toast-message';
 
 /**
  * HTTP Interceptor to add authorization token to outgoing requests and handle token refresh on 401 errors.
@@ -83,7 +84,7 @@ export class TokenInterceptor implements HttpInterceptor {
       }),
       catchError((err) => {
         return throwError(() => {
-          this.toast.warning({ detail: 'Warning', summary: 'Token is expired, Please Login again', duration: 3000 });
+          this.toast.warning({ detail: 'Warning', summary: WarningMessage.TokenExpired, duration: 3000 });
           this.authService.logOut();
           this.router.navigate(['login']);
         });

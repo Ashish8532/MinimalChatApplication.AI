@@ -84,7 +84,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     private authService: AuthService,
     private signalRService: SignalRService,
     private router: Router
-  ) {}
+  ) { }
 
   /**
    * Initializes the component.
@@ -130,11 +130,12 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     /**
      * Subscribes to new message events through SignalR.
      * - Checks if the logged user is the intended receiver of the new message.
-     * - Updates the conversation history and scrolls to the bottom if the condition is met.
+     * - Updates the conversation history with the new message if the condition is met.
+     * - Scrolls to the bottom of the conversation history.
      *
      * @param data - The data object containing information about the new message.
      */
-    this.signalRService.receiveNewMessage$().subscribe((data: any) => {
+    this.signalRService.receiveNewMessage$().subscribe((data: MessageResponse) => {
       if (this.loggedUserId === data.receiverId) {
         this.conversationHistory.push(data);
         this.scrollToBottom();
@@ -153,14 +154,13 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
      * message event is received through SignalR. It ensures that the UI reflects real-time changes
      * made to the content of a message.
      */
-    this.signalRService.receiveEditedMessage$().subscribe((data: any) => {
-      const editedMessage = this.conversationHistory.find(
-        (m: any) => m.id === data.messageId
-      );
+    this.signalRService.receiveEditedMessage$().subscribe((data: { messageId: number, content: string }) => {
+      const editedMessage = this.conversationHistory.find((m: MessageResponse) => m.id === data.messageId);
       if (editedMessage) {
         editedMessage.content = data.content;
       }
     });
+    
 
     /**
      * Subscribes to deleted message events through SignalR.
@@ -173,9 +173,9 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
      * message event is received through SignalR. It ensures that the UI reflects real-time removal
      * of a message from the conversation history.
      */
-    this.signalRService.receiveDeletedMessage$().subscribe((messageId: any) => {
+    this.signalRService.receiveDeletedMessage$().subscribe((messageId: number) => {
       this.conversationHistory = this.conversationHistory.filter(
-        (m: any) => m.id !== messageId
+        (m: MessageResponse) => m.id !== messageId
       );
     });
 
@@ -197,7 +197,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       },
     });
 
-    
+
     /**
      * Subscribes to real-time updates for user status message using SignalR.
      * Updates the current user's status message when a change is received.
@@ -236,19 +236,19 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       },
     });
   }
-/**
- * Fetches additional conversation history for a user.
- * - Initiates a call to the message service to retrieve older messages based on the user ID and timestamp.
- * - Updates component properties with the fetched data, including the conversation history.
- * - Manages loading state and updates the IsActive property based on the API response.
- *
- * @param userId - The ID of the user for whom additional conversation history is being fetched.
- * @param before - The timestamp of the oldest message to fetch more history.
- *
- * @remarks
- * This method handles the process of fetching additional conversation history for a user,
- * updating the component properties, managing loading state, and updating the IsActive property.
- */
+  /**
+   * Fetches additional conversation history for a user.
+   * - Initiates a call to the message service to retrieve older messages based on the user ID and timestamp.
+   * - Updates component properties with the fetched data, including the conversation history.
+   * - Manages loading state and updates the IsActive property based on the API response.
+   *
+   * @param userId - The ID of the user for whom additional conversation history is being fetched.
+   * @param before - The timestamp of the oldest message to fetch more history.
+   *
+   * @remarks
+   * This method handles the process of fetching additional conversation history for a user,
+   * updating the component properties, managing loading state, and updating the IsActive property.
+   */
   fetchMoreConversationHistory(userId: string, before: string) {
     this.isLoadingMoreMessages = true;
     this.messageService.getConversationHistory(userId, before).subscribe({
@@ -382,7 +382,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
       receiverId: this.userId,
       content: this.newMessageContent,
     };
-    
+
     if (this.selectedGif) {
       message.gifId = this.selectedGif.id;
     }
@@ -446,20 +446,20 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
     this.isContextMenuVisible = false;
     this.isEditing = true;
   }
-/**
- * Edits the content of a message.
- * - Calls the message service to update the content of the selected message.
- * - Displays a success toast and updates the conversation history with the edited message.
- * - Scrolls to the bottom, hides the context menu, and disables editing mode.
- *
- * @param message - The message to be edited.
- *
- * @remarks
- * This method facilitates the editing of the selected message through the message service,
- * provides visual feedback on success using a toast, and ensures that the conversation history
- * reflects the edited message. Additionally, it manages the UI state by scrolling to the bottom,
- * hiding the context menu, and disabling editing mode after the editing process.
- */
+  /**
+   * Edits the content of a message.
+   * - Calls the message service to update the content of the selected message.
+   * - Displays a success toast and updates the conversation history with the edited message.
+   * - Scrolls to the bottom, hides the context menu, and disables editing mode.
+   *
+   * @param message - The message to be edited.
+   *
+   * @remarks
+   * This method facilitates the editing of the selected message through the message service,
+   * provides visual feedback on success using a toast, and ensures that the conversation history
+   * reflects the edited message. Additionally, it manages the UI state by scrolling to the bottom,
+   * hiding the context menu, and disabling editing mode after the editing process.
+   */
   editMessage(message: MessageResponse) {
     this.messageService.updateMessage(message.id, message.content!).subscribe({
       next: (res: ApiResponse<object>) => {
@@ -540,7 +540,7 @@ export class ConversationHistoryComponent implements OnInit, OnChanges {
         if (err.status === 401 || err.status === 404 || err.status === 500) {
           Swal.fire('Error', err.error.message, 'error');
         } else {
-          Swal.fire('Error','Something went wrong while processing the request.','error');
+          Swal.fire('Error', 'Something went wrong while processing the request.', 'error');
         }
       },
     });

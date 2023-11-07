@@ -1,17 +1,24 @@
+.user-container {
+  position: relative;
+  height: 400px;
+}
 .selected-user {
-    background-color: rgb(232, 232, 232); 
-    padding: 8px;
-    border-radius: 8px;
-  }
+  background-color: rgb(232, 232, 232);
+  padding: 8px;
+  border-radius: 8px;
+}
 
-  .user {
-    position: relative;
-  }
+.user {
+  position: relative;
+}
 
-  .badge-dot {
-    position: absolute; 
-    right: 0; 
-    bottom: 0; 
-    margin-bottom: 18px;
-    }
-  
+.badge-dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin-bottom: 18px;
+}
+
+.small {
+  max-width: 160px;
+}

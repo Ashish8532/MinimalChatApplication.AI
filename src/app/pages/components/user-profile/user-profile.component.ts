@@ -21,7 +21,9 @@ export class UserProfileComponent implements OnInit {
   public editedStatusMessage: string;
   public isEditingStatusMessage: boolean = false;
 
+  // Constant string status message for dropdown selection
   statusMessages = StatusMessages;
+  
   selectedStatusMessage: string = '';
 
   /**
